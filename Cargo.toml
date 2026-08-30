@@ -9,7 +9,7 @@ license = "GPL-3.0-or-later"
 authors = ["QSONaut Contributors"]
 
 [workspace.dependencies]
-qsonaut-modems = { git = "https://github.com/nicksbar/qsonaut-modems.git", rev = "c79003dcf5c759a68cc51f6651ecd247cbebaaa0" }
+qsonaut-modems = { git = "https://github.com/nicksbar/qsonaut-modems.git", rev = "f7367ef" }
 mfsk-core = { git = "https://github.com/jl1nie/mfsk-core.git", rev = "a3fd6744df0a064e035df9b63ff76251ed0e2ec1", default-features = false, features = ["full"] }
 thiserror = "2"
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
