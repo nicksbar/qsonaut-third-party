@@ -1,0 +1,4 @@
+GPL-3.0-or-later
+
+This repository contains adapters around third-party modem implementations.
+See THIRD_PARTY_NOTICES.md for component-specific licensing and source pins.
