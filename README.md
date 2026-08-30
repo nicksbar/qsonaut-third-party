@@ -5,9 +5,9 @@ Adapters around third-party amateur-radio modem implementations.
 This repository is the licensing boundary for protocol libraries that are not
 QSONaut work products. Its adapters translate those libraries into the
 UI-independent contracts defined by
-[`qsonaut-modems`](https://github.com/nicksbar/qsonaut-modems). During local
-development the contract is consumed from the sibling checkout; releases must
-replace that path with a pinned immutable Git revision or published version.
+[`qsonaut-modems`](https://github.com/nicksbar/qsonaut-modems). The contract is
+consumed from an immutable Git revision; local sibling checkouts can still be
+used by changing the dependency temporarily during development.
 
 The adapters cover FT8, FT4, all FST4 submodes, WSPR, JT9, JT65, Q65-A30, and
 MSK144 through the pinned `mfsk-core` Git revision, plus the extracted SSTV

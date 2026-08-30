@@ -71,10 +71,8 @@ cd /home/nick/RigForge/qsonaut-third-party
 cargo test --workspace --all-targets
 ```
 
-The manifest intentionally uses the sibling path
-`../qsonaut-modems/crates/qsonaut-modems`. This is the temporary integration
-arrangement: it makes contract changes visible immediately while both
-component repositories are being stabilized. Consumer manifests should use
-the same local path during their later integration branches. Before publishing
-or consuming remotely, replace it with a pinned Git revision or released
-version in a separate release change.
+The standalone repository manifest uses an immutable Git revision of
+`qsonaut-modems`, so CI and consumers can check it out without a sibling
+directory. During local cross-repository development, a temporary sibling path
+override may be used, but it must not be committed or released. Update the Git
+revision deliberately when the contract repository changes.
