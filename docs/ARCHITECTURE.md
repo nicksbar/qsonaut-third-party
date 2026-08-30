@@ -26,3 +26,8 @@ WSJT-family modes share `wsjt::WsjtDecodeConfig`, `wsjt::WsjtMode`, and
 protocol-family calls in `wsjt/digital.rs` and `wsjt/scans.rs`. The adapter
 owns no slot scheduler: consumers use the mode metadata to decide when to
 present complete audio to a decoder.
+
+The adapter's 12 kHz requirement applies only to its input `AudioBlock`; it is
+not a requirement that a consumer capture, monitor, or record at 12 kHz. See
+[AUDIO-DECODER-CONTRACT.md](AUDIO-DECODER-CONTRACT.md) for the full-rate
+capture and decoder-stream boundary.

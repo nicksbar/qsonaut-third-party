@@ -32,3 +32,6 @@ cargo clippy --workspace --all-targets --all-features -- -D warnings
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and
 [docs/CONSUMER-INTEGRATION.md](docs/CONSUMER-INTEGRATION.md).
+
+For the full-rate capture versus 12 kHz WSJT decoder boundary, see
+[docs/AUDIO-DECODER-CONTRACT.md](docs/AUDIO-DECODER-CONTRACT.md).

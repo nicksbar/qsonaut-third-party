@@ -54,6 +54,14 @@ window and the WSPR/JT9/JT65 coarse-search controls.
 decoded event count without coupling the adapter to QSONaut's compute-backend
 telemetry types.
 
+## Audio boundary clarification
+
+The adapter consumes a modem-specific 12 kHz `AudioBlock`, while a station may
+capture and fan out a 48 kHz stream for display, monitoring, recording, or
+other decoders. Consumers must use a stateful anti-aliased conversion and must
+not replace the full-rate stream with a stateless 4:1 sample reduction. See
+[AUDIO-DECODER-CONTRACT.md](AUDIO-DECODER-CONTRACT.md).
+
 ## Local checkout workflow
 
 From the sibling checkout root, build this repository directly:
