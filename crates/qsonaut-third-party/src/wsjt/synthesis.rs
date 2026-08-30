@@ -110,3 +110,42 @@ pub fn synthesize_wspr_type1(compose: &str, tone_hz: f32, amplitude: i16) -> Opt
             .collect()
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const MESSAGE: &str = "CQ W1AW AA00";
+
+    #[test]
+    fn standard_waveform_adapters_produce_audio() {
+        assert!(!synthesize_ft8_standard(MESSAGE, 1_500.0, 18_000)
+            .unwrap()
+            .is_empty());
+        assert!(!synthesize_ft4_standard(MESSAGE, 1_500.0, 18_000)
+            .unwrap()
+            .is_empty());
+        assert!(
+            !synthesize_fst4_standard(MESSAGE, Fst4Submode::S60, 1_500.0, 18_000)
+                .unwrap()
+                .is_empty()
+        );
+        assert!(!synthesize_jt9_standard(MESSAGE, 1_500.0, 18_000)
+            .unwrap()
+            .is_empty());
+        assert!(!synthesize_jt65_standard(MESSAGE, 1_500.0, 18_000)
+            .unwrap()
+            .is_empty());
+        assert!(!synthesize_q65_standard(MESSAGE, 1_500.0, 18_000)
+            .unwrap()
+            .is_empty());
+    }
+
+    #[test]
+    fn wspr_adapter_rejects_malformed_and_accepts_type_one_messages() {
+        assert!(synthesize_wspr_type1("not enough fields", 1_500.0, 18_000).is_none());
+        assert!(!synthesize_wspr_type1("K1ABC FN31 30", 1_500.0, 18_000)
+            .unwrap()
+            .is_empty());
+    }
+}
