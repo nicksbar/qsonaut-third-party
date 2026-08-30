@@ -116,14 +116,28 @@ impl CwChannel {
                     ChannelSlicer::Classic(slicer) => slicer.push(self.smoother.push(envelope)),
                 };
                 if let Some(run) = self.rle.push(mark).and_then(|run| self.debouncer.push(run)) {
-                    for event in self.decoder.push(run.mark, run.duration) {
-                        self.accumulate(event);
-                        output.push(Self::map_event(event));
-                    }
+                    self.push_run(run.mark, run.duration, &mut output);
                 }
             }
         }
         (output, channel_audio)
+    }
+
+    /// Flush a completed carrier-off interval so a final Morse character is
+    /// emitted even when the stream remains open for later reception.
+    pub fn finish(&mut self) -> Vec<CwDecode> {
+        let mut output = Vec::new();
+        if let Some(run) = self.rle.finish().and_then(|run| self.debouncer.push(run)) {
+            self.push_run(run.mark, run.duration, &mut output);
+        }
+        if let Some(run) = self.debouncer.finish() {
+            self.push_run(run.mark, run.duration, &mut output);
+        }
+        for event in self.decoder.finish() {
+            self.accumulate(event);
+            output.push(Self::map_event(event));
+        }
+        output
     }
 
     pub fn text(&self) -> &str {
@@ -143,6 +157,13 @@ impl CwChannel {
             UpstreamDecoded::Char(character) => CwDecode::Character(character),
             UpstreamDecoded::WordBreak => CwDecode::WordBreak,
             UpstreamDecoded::Unknown => CwDecode::Unknown,
+        }
+    }
+
+    fn push_run(&mut self, mark: bool, duration: u32, output: &mut Vec<CwDecode>) {
+        for event in self.decoder.push(mark, duration) {
+            self.accumulate(event);
+            output.push(Self::map_event(event));
         }
     }
 
