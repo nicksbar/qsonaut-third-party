@@ -3,7 +3,7 @@ use std::time::Instant;
 use mfsk_core::msg::decode_request::DecodeRequest as Fst4Request;
 use qsonaut_modems::{AudioBlock, DecodeBatch};
 
-use super::{common::*, Fst4Submode, WsjtDecodeConfig, WsjtMode};
+use super::{common::*, Fst4Submode, Q65Submode, WsjtDecodeConfig, WsjtMode};
 use crate::AdapterError;
 
 macro_rules! fst4_decode {
@@ -131,38 +131,56 @@ pub fn decode_jt65(
     Ok(DecodeBatch::finish(samples.len(), started, events))
 }
 
-pub fn decode_q65(
-    audio: &AudioBlock,
-    config: &WsjtDecodeConfig,
-) -> Result<DecodeBatch, AdapterError> {
-    let samples = require_audio(audio);
-    let started = Instant::now();
-    let request = mfsk_core::q65::DecodeRequest::<mfsk_core::q65::Q65a30>::new(
-        samples,
-        super::SAMPLE_RATE_HZ,
-        0,
-        mfsk_core::q65::SearchParams {
-            freq_min_hz: config.frequency_min_hz,
-            freq_max_hz: config.frequency_max_hz,
-            time_tolerance_early_sec: config.time_tolerance_sec,
-            time_tolerance_late_sec: config.time_tolerance_sec,
-            score_threshold: config.score_threshold,
-            max_candidates: config.max_candidates,
-        },
-    );
-    let events = request
+macro_rules! q65_decode {
+    ($audio:expr, $config:expr, $mode:expr, $protocol:ty) => {{
+        mfsk_core::q65::DecodeRequest::<$protocol>::new(
+            $audio,
+            super::SAMPLE_RATE_HZ,
+            0,
+            mfsk_core::q65::SearchParams {
+                freq_min_hz: $config.frequency_min_hz,
+                freq_max_hz: $config.frequency_max_hz,
+                time_tolerance_early_sec: $config.time_tolerance_sec,
+                time_tolerance_late_sec: $config.time_tolerance_sec,
+                score_threshold: $config.score_threshold,
+                max_candidates: $config.max_candidates,
+            },
+        )
         .decode()
         .into_iter()
         .map(|result| {
             event(
-                WsjtMode::Q65,
+                $mode,
                 result.message,
                 result.snr_db,
                 result.start_sample as f32 / super::SAMPLE_RATE_HZ as f32,
                 result.freq_hz,
             )
         })
-        .collect();
+        .collect::<Vec<_>>()
+    }};
+}
+
+pub fn decode_q65(
+    audio: &AudioBlock,
+    submode: Q65Submode,
+    config: &WsjtDecodeConfig,
+) -> Result<DecodeBatch, AdapterError> {
+    let samples = require_audio(audio);
+    let started = Instant::now();
+    let mode = WsjtMode::Q65(submode);
+    let events = match submode {
+        Q65Submode::A15 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65a15),
+        Q65Submode::A30 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65a30),
+        Q65Submode::A60 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65a60),
+        Q65Submode::B60 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65b60),
+        Q65Submode::C60 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65c60),
+        Q65Submode::D60 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65d60),
+        Q65Submode::E60 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65e60),
+        Q65Submode::D120 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65d120),
+        Q65Submode::E120 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65e120),
+        Q65Submode::A300 => q65_decode!(samples, config, mode, mfsk_core::q65::Q65a300),
+    };
     Ok(DecodeBatch::finish(samples.len(), started, events))
 }
 

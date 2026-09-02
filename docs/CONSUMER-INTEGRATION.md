@@ -40,8 +40,8 @@ validated.
 | FST4 | `WsjtMode::Fst4(Fst4Submode::...)` | 15–300 s |
 | WSPR | `WsjtMode::Wspr` | 120 s |
 | JT9 | `WsjtMode::Jt9` | 60 s |
-| JT65 | `WsjtMode::Jt65` | 60 s |
-| Q65-A30 | `WsjtMode::Q65` | 30 s |
+| JT65A | `WsjtMode::Jt65` | 60 s |
+| Q65 | `WsjtMode::Q65(Q65Submode::...)` | 15–300 s |
 | MSK144 | `WsjtMode::Msk144` | 15 s |
 
 `WsjtDecodeConfig` is the shared adapter configuration. Its frequency range,
@@ -53,6 +53,10 @@ window and the WSPR/JT9/JT65 coarse-search controls.
 `DecodeBatch::telemetry` reports elapsed decode time, input sample count, and
 decoded event count without coupling the adapter to QSONaut's compute-backend
 telemetry types.
+
+`Q65Submode` exposes `A15`, `A30`, `A60`, `B60`, `C60`, `D60`, `E60`, `D120`,
+`E120`, and `A300`. JT65 remains JT65A because the pinned backend does not
+currently provide usable JT65B or JT65C protocol types.
 
 ## Audio boundary clarification
 

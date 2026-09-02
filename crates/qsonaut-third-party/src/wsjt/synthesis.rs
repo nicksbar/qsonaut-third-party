@@ -1,6 +1,6 @@
 use mfsk_core::{fst4, ft4, ft8, msg::wsjt77::pack77, wspr};
 
-use super::Fst4Submode;
+use super::{Fst4Submode, Q65Submode};
 
 fn standard_message(compose: &str) -> Option<(String, String, String)> {
     let tokens: Vec<&str> = compose.split_whitespace().collect();
@@ -88,13 +88,31 @@ pub fn synthesize_jt65_standard(compose: &str, tone_hz: f32, amplitude: i16) -> 
     )
 }
 
-pub fn synthesize_q65_standard(compose: &str, tone_hz: f32, amplitude: i16) -> Option<Vec<i16>> {
-    standard_waveform(
-        compose,
-        tone_hz,
-        amplitude,
-        mfsk_core::q65::synthesize_standard,
-    )
+pub fn synthesize_q65_standard(
+    compose: &str,
+    submode: Q65Submode,
+    tone_hz: f32,
+    amplitude: i16,
+) -> Option<Vec<i16>> {
+    macro_rules! q65_synthesize {
+        ($protocol:ty) => {
+            standard_waveform(compose, tone_hz, amplitude, |a, b, c, rate, freq, amp| {
+                mfsk_core::q65::synthesize_standard_for::<$protocol>(a, b, c, rate, freq, amp)
+            })
+        };
+    }
+    match submode {
+        Q65Submode::A15 => q65_synthesize!(mfsk_core::q65::Q65a15),
+        Q65Submode::A30 => q65_synthesize!(mfsk_core::q65::Q65a30),
+        Q65Submode::A60 => q65_synthesize!(mfsk_core::q65::Q65a60),
+        Q65Submode::B60 => q65_synthesize!(mfsk_core::q65::Q65b60),
+        Q65Submode::C60 => q65_synthesize!(mfsk_core::q65::Q65c60),
+        Q65Submode::D60 => q65_synthesize!(mfsk_core::q65::Q65d60),
+        Q65Submode::E60 => q65_synthesize!(mfsk_core::q65::Q65e60),
+        Q65Submode::D120 => q65_synthesize!(mfsk_core::q65::Q65d120),
+        Q65Submode::E120 => q65_synthesize!(mfsk_core::q65::Q65e120),
+        Q65Submode::A300 => q65_synthesize!(mfsk_core::q65::Q65a300),
+    }
 }
 
 pub fn synthesize_wspr_type1(compose: &str, tone_hz: f32, amplitude: i16) -> Option<Vec<i16>> {
@@ -136,9 +154,11 @@ mod tests {
         assert!(!synthesize_jt65_standard(MESSAGE, 1_500.0, 18_000)
             .unwrap()
             .is_empty());
-        assert!(!synthesize_q65_standard(MESSAGE, 1_500.0, 18_000)
-            .unwrap()
-            .is_empty());
+        assert!(
+            !synthesize_q65_standard(MESSAGE, Q65Submode::A30, 1_500.0, 18_000)
+                .unwrap()
+                .is_empty()
+        );
     }
 
     #[test]
