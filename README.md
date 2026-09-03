@@ -9,8 +9,8 @@ UI-independent contracts defined by
 consumed from an immutable Git revision; local sibling checkouts can still be
 used by changing the dependency temporarily during development.
 
-The adapters cover FT8, FT4, all FST4 submodes, WSPR, JT9, JT65, Q65-A30, and
-MSK144 through the pinned `mfsk-core` Git revision, plus the extracted SSTV
+The adapters cover FT8, FT4, all FST4 submodes, WSPR, JT9, JT65A, every wired
+Q65 submode, and MSK144 through the pinned `mfsk-core` Git revision, plus the extracted SSTV
 streaming/VIS implementation and selected-channel CW DSP adapter. WSJT modes use
 one `WsjtMode`/`WsjtDecodeConfig` dispatch surface and return normalized
 `qsonaut-modems` batches.

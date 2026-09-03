@@ -11,6 +11,47 @@ pub enum Fst4Submode {
     S300,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Q65Submode {
+    A15,
+    A30,
+    A60,
+    B60,
+    C60,
+    D60,
+    E60,
+    D120,
+    E120,
+    A300,
+}
+
+impl Q65Submode {
+    pub const fn seconds(self) -> u64 {
+        match self {
+            Self::A15 => 15,
+            Self::A30 => 30,
+            Self::A60 | Self::B60 | Self::C60 | Self::D60 | Self::E60 => 60,
+            Self::D120 | Self::E120 => 120,
+            Self::A300 => 300,
+        }
+    }
+
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::A15 => "q65-a15",
+            Self::A30 => "q65-a30",
+            Self::A60 => "q65-a60",
+            Self::B60 => "q65-b60",
+            Self::C60 => "q65-c60",
+            Self::D60 => "q65-d60",
+            Self::E60 => "q65-e60",
+            Self::D120 => "q65-d120",
+            Self::E120 => "q65-e120",
+            Self::A300 => "q65-a300",
+        }
+    }
+}
+
 impl Fst4Submode {
     pub const fn seconds(self) -> u64 {
         match self {
@@ -41,7 +82,7 @@ pub enum WsjtMode {
     Wspr,
     Jt9,
     Jt65,
-    Q65,
+    Q65(Q65Submode),
     Msk144,
 }
 
@@ -54,7 +95,7 @@ impl WsjtMode {
             Self::Wspr => "wspr",
             Self::Jt9 => "jt9",
             Self::Jt65 => "jt65",
-            Self::Q65 => "q65-a30",
+            Self::Q65(submode) => submode.name(),
             Self::Msk144 => "msk144",
         }
     }
@@ -70,7 +111,7 @@ impl WsjtMode {
             Self::Fst4(submode) => Duration::from_secs(submode.seconds()),
             Self::Wspr => Duration::from_secs(120),
             Self::Jt9 | Self::Jt65 => Duration::from_secs(60),
-            Self::Q65 => Duration::from_secs(30),
+            Self::Q65(submode) => Duration::from_secs(submode.seconds()),
             Self::Msk144 => Duration::from_secs(15),
         }
     }

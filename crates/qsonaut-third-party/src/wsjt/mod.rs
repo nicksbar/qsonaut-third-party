@@ -6,7 +6,7 @@ mod digital;
 mod scans;
 mod synthesis;
 
-pub use config::{Fst4Submode, WsjtDecodeConfig, WsjtMode};
+pub use config::{Fst4Submode, Q65Submode, WsjtDecodeConfig, WsjtMode};
 pub use digital::{decode_ft4, decode_ft8};
 pub use scans::{decode_fst4, decode_jt65, decode_jt9, decode_msk144, decode_q65, decode_wspr};
 pub use synthesis::{
@@ -44,7 +44,7 @@ pub fn decode(
         WsjtMode::Wspr => decode_wspr(audio, config),
         WsjtMode::Jt9 => decode_jt9(audio, config),
         WsjtMode::Jt65 => decode_jt65(audio, config),
-        WsjtMode::Q65 => decode_q65(audio, config),
+        WsjtMode::Q65(submode) => decode_q65(audio, submode, config),
         WsjtMode::Msk144 => decode_msk144(audio, config),
     }?;
     let elapsed = started.elapsed();
@@ -72,7 +72,7 @@ mod tests {
             WsjtMode::Wspr,
             WsjtMode::Jt9,
             WsjtMode::Jt65,
-            WsjtMode::Q65,
+            WsjtMode::Q65(Q65Submode::A30),
             WsjtMode::Msk144,
         ];
         assert_eq!(
@@ -82,7 +82,10 @@ mod tests {
         assert_eq!(WsjtMode::Ft8.slot(), Duration::from_secs(15));
         assert_eq!(WsjtMode::Ft4.slot(), Duration::from_millis(7_500));
         assert_eq!(WsjtMode::Wspr.slot(), Duration::from_secs(120));
-        assert_eq!(WsjtMode::Q65.slot(), Duration::from_secs(30));
+        assert_eq!(
+            WsjtMode::Q65(Q65Submode::A30).slot(),
+            Duration::from_secs(30)
+        );
     }
 
     #[test]
@@ -114,5 +117,33 @@ mod tests {
             submodes.iter().map(|mode| mode.name()).collect::<Vec<_>>(),
             vec!["fst4-15", "fst4-30", "fst4-60", "fst4-120", "fst4-300",]
         );
+    }
+
+    #[test]
+    fn q65_submodes_have_distinct_names_and_slot_durations() {
+        let submodes = [
+            Q65Submode::A15,
+            Q65Submode::A30,
+            Q65Submode::A60,
+            Q65Submode::B60,
+            Q65Submode::C60,
+            Q65Submode::D60,
+            Q65Submode::E60,
+            Q65Submode::D120,
+            Q65Submode::E120,
+            Q65Submode::A300,
+        ];
+        assert_eq!(
+            submodes.iter().map(|mode| mode.name()).collect::<Vec<_>>(),
+            vec![
+                "q65-a15", "q65-a30", "q65-a60", "q65-b60", "q65-c60", "q65-d60", "q65-e60",
+                "q65-d120", "q65-e120", "q65-a300",
+            ]
+        );
+        assert_eq!(Q65Submode::A15.seconds(), 15);
+        assert_eq!(Q65Submode::A30.seconds(), 30);
+        assert_eq!(Q65Submode::E60.seconds(), 60);
+        assert_eq!(Q65Submode::D120.seconds(), 120);
+        assert_eq!(Q65Submode::A300.seconds(), 300);
     }
 }
