@@ -10,7 +10,7 @@ authors = ["QSONaut Contributors"]
 
 [workspace.dependencies]
 qsonaut-modems = { git = "https://github.com/nicksbar/qsonaut-modems.git", rev = "6cc26b8" }
-mfsk-core = { git = "https://github.com/jl1nie/mfsk-core.git", rev = "a3fd6744df0a064e035df9b63ff76251ed0e2ec1", default-features = false, features = ["full"] }
+mfsk-core = { git = "https://github.com/jl1nie/mfsk-core.git", rev = "acc94e42a6b2132b6ff44349b7e058f0d756e966", default-features = false, features = ["full"] }
 thiserror = "2"
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 komitoto-sstv = { git = "https://github.com/IRendy/komitoto.git", rev = "c98945f7c89f714b3182457a86b15a0c43cb6de6" }
