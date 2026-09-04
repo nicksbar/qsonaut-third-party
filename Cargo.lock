@@ -544,7 +544,7 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 [[package]]
 name = "mfsk-core"
 version = "0.10.1"
-source = "git+https://github.com/jl1nie/mfsk-core.git?rev=a3fd6744df0a064e035df9b63ff76251ed0e2ec1#a3fd6744df0a064e035df9b63ff76251ed0e2ec1"
+source = "git+https://github.com/jl1nie/mfsk-core.git?rev=acc94e42a6b2132b6ff44349b7e058f0d756e966#acc94e42a6b2132b6ff44349b7e058f0d756e966"
 dependencies = [
  "crc",
  "num-complex",
