@@ -2,6 +2,17 @@
 members = ["crates/qsonaut-third-party"]
 resolver = "2"
 
+# Resolve sibling RigForge checkouts locally for development and tests.
+[patch."https://github.com/nicksbar/qsonaut-modems.git"]
+qsonaut-modems = { path = "../qsonaut-modems/crates/qsonaut-modems" }
+
+[patch."https://github.com/jl1nie/mfsk-core.git"]
+mfsk-core = { path = "../mfsk-core/mfsk-core" }
+
+[patch."https://github.com/swilcox/cw-dit.git"]
+cwdit-dsp = { path = "../cw-dit/cwdit-dsp" }
+cwdit-morse = { path = "../cw-dit/cwdit-morse" }
+
 [workspace.package]
 version = "0.1.0"
 edition = "2021"

@@ -246,7 +246,6 @@ checksum = "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5"
 [[package]]
 name = "cwdit-dsp"
 version = "0.1.0"
-source = "git+https://github.com/swilcox/cw-dit.git?rev=153fc247ce6e4934c94e0cd2dcbf7887e368ec29#153fc247ce6e4934c94e0cd2dcbf7887e368ec29"
 dependencies = [
  "rustfft",
 ]
@@ -254,7 +253,6 @@ dependencies = [
 [[package]]
 name = "cwdit-morse"
 version = "0.1.0"
-source = "git+https://github.com/swilcox/cw-dit.git?rev=153fc247ce6e4934c94e0cd2dcbf7887e368ec29#153fc247ce6e4934c94e0cd2dcbf7887e368ec29"
 
 [[package]]
 name = "either"
@@ -544,7 +542,6 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 [[package]]
 name = "mfsk-core"
 version = "0.10.1"
-source = "git+https://github.com/jl1nie/mfsk-core.git?rev=4f2f678eda44f13f88c8e43a3f71adb892e3b84b#4f2f678eda44f13f88c8e43a3f71adb892e3b84b"
 dependencies = [
  "crc",
  "num-complex",
@@ -794,7 +791,6 @@ dependencies = [
 [[package]]
 name = "qsonaut-modems"
 version = "0.1.0"
-source = "git+https://github.com/nicksbar/qsonaut-modems.git?rev=6cc26b8#6cc26b8bc2b60a897b303e1f793dc10388f0485c"
 dependencies = [
  "thiserror",
 ]
