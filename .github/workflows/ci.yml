@@ -17,6 +17,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout local workspace dependencies
+        uses: actions/checkout@v4
+        with:
+          repository: nicksbar/qsonaut-modems
+          ref: main
+          path: ../qsonaut-modems
+      - uses: actions/checkout@v4
+        with:
+          repository: jl1nie/mfsk-core
+          ref: main
+          path: ../mfsk-core
+      - uses: actions/checkout@v4
+        with:
+          repository: swilcox/cw-dit
+          ref: main
+          path: ../cw-dit
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
