@@ -6,6 +6,8 @@ mod digital;
 mod scans;
 mod synthesis;
 
+use common::to_pcm;
+
 pub use config::{Fst4Submode, Q65Submode, WsjtDecodeConfig, WsjtMode};
 pub use digital::{decode_ft4, decode_ft8};
 pub use scans::{decode_fst4, decode_jt65, decode_jt9, decode_msk144, decode_q65, decode_wspr};
@@ -14,6 +16,57 @@ pub use synthesis::{
     synthesize_jt65_standard, synthesize_jt9_standard, synthesize_q65_standard,
     synthesize_wspr_type1,
 };
+
+/// Minimum 12 kHz audio needed by [`acquire_ft8_slot_phases`]: a 15-second
+/// slot plus two additional 5-second acquisition windows.
+pub const FT8_SLOT_ACQUISITION_REQUIRED_SAMPLES: usize = mfsk_core::ft8::acquire::REQUIRED_SAMPLES;
+
+/// A candidate FT8 slot phase returned by cold acquisition.
+///
+/// `delta_time_seconds` is in `(-7.5, 7.5]`; callers should try candidates
+/// by decoding at the proposed phase and select the first phase that produces
+/// real messages. `weight` ranks the candidates, with larger values first.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ft8SlotPhaseCandidate {
+    pub delta_time_seconds: f32,
+    pub weight: f32,
+}
+
+/// Find candidate FT8 slot phases from unaligned audio.
+///
+/// This is intentionally an acquisition primitive rather than an automatic
+/// clock decision: a strong outlier station can produce a coherent but wrong
+/// phase, so the caller must validate candidates by decoding. Empty audio or
+/// audio shorter than [`FT8_SLOT_ACQUISITION_REQUIRED_SAMPLES`] returns an
+/// empty vector.
+pub fn acquire_ft8_slot_phases(
+    audio: &AudioBlock,
+    config: &WsjtDecodeConfig,
+) -> Result<Vec<Ft8SlotPhaseCandidate>, AdapterError> {
+    if audio.sample_rate_hz != SAMPLE_RATE_HZ {
+        return Err(AdapterError::UnsupportedSampleRate {
+            modem: WsjtMode::Ft8.name(),
+            expected: SAMPLE_RATE_HZ,
+            actual: audio.sample_rate_hz,
+        });
+    }
+
+    let phases = mfsk_core::ft8::acquire::acquire_slot_phases(
+        &to_pcm(&audio.samples),
+        config.frequency_min_hz,
+        config.frequency_max_hz,
+        config.sync_min,
+        config.max_candidates,
+        8,
+    );
+    Ok(phases
+        .into_iter()
+        .map(|(delta_time_seconds, weight)| Ft8SlotPhaseCandidate {
+            delta_time_seconds,
+            weight,
+        })
+        .collect())
+}
 
 use std::time::Instant;
 
@@ -99,6 +152,34 @@ mod tests {
                 expected: SAMPLE_RATE_HZ,
                 actual: 48_000,
             }
+        );
+    }
+
+    #[test]
+    fn ft8_acquisition_requires_the_standard_audio_rate() {
+        let audio = AudioBlock::new(48_000, Vec::new()).unwrap();
+        let error = acquire_ft8_slot_phases(&audio, &WsjtDecodeConfig::default()).unwrap_err();
+        assert_eq!(
+            error,
+            AdapterError::UnsupportedSampleRate {
+                modem: "ft8",
+                expected: SAMPLE_RATE_HZ,
+                actual: 48_000,
+            }
+        );
+    }
+
+    #[test]
+    fn ft8_acquisition_reports_empty_for_a_short_audio_buffer() {
+        let audio = AudioBlock::new(SAMPLE_RATE_HZ, Vec::new()).unwrap();
+        assert!(
+            acquire_ft8_slot_phases(&audio, &WsjtDecodeConfig::default())
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(
+            FT8_SLOT_ACQUISITION_REQUIRED_SAMPLES,
+            25 * SAMPLE_RATE_HZ as usize
         );
     }
 
