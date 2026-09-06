@@ -12,6 +12,7 @@ repository = "https://github.com/nicksbar/qsonaut-third-party"
 default = []
 rade-c = []
 rade-speech = ["rade-c"]
+rade-bundled = ["rade-speech"]
 
 [dependencies]
 qsonaut-modems.workspace = true
