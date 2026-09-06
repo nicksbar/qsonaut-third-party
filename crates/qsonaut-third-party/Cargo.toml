@@ -4,8 +4,13 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 authors.workspace = true
+build = "build.rs"
 description = "QSONaut adapters around third-party modem implementations"
 repository = "https://github.com/nicksbar/qsonaut-third-party"
+
+[features]
+default = []
+rade-c = []
 
 [dependencies]
 qsonaut-modems.workspace = true
