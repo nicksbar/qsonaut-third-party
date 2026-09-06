@@ -68,10 +68,12 @@ for null-modem and boundary tests. These methods exercise the actual V1/V2
 RADE encoder; they do not claim that arbitrary microphone PCM has been
 converted into FARGAN features.
 
-Speech feature extraction and synthesis remain an explicit seam. A consumer
-must own or select that LPCNet/FARGAN bridge before presenting live microphone
-TX or decoded speech playback. The adapter does not own audio devices,
-resampling, or TX scheduling.
+The optional `rade-speech` feature closes that speech seam inside the adapter:
+`rade::speech::SpeechEncoder` accepts one 10 ms, 16 kHz PCM frame and returns
+one LPCNet/FARGAN feature frame; `SpeechDecoder` accepts one feature frame and
+returns 16 kHz PCM after its five-frame FARGAN warm-up. It links the upstream
+Opus neural-vocoder build through `RADE_C_DIR`, while the adapter still does
+not own audio devices, resampling, modem-frame aggregation, or TX scheduling.
 
 ## Audio boundary clarification
 
