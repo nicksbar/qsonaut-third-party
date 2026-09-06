@@ -108,6 +108,15 @@ impl RadeContext {
         unsafe { rade_n_features_in_out(self.raw.as_ptr()) as usize }
     }
 
+    pub fn rx_input_count(&self) -> Result<usize, RadeNativeError> {
+        // SAFETY: raw is a live context owned by self.
+        let count = unsafe { rade_nin(self.raw.as_ptr()) };
+        if count < 0 {
+            return Err(RadeNativeError::InvalidOutputCount { actual: count });
+        }
+        Ok(count as usize)
+    }
+
     pub fn tx_features(&mut self, features: &[f32]) -> Result<Vec<RadeIqSample>, RadeNativeError> {
         let expected = self.feature_count();
         if features.len() != expected {
@@ -155,11 +164,7 @@ impl RadeContext {
 
     pub fn rx_iq(&mut self, input: &[RadeIqSample]) -> Result<RadeRxResult, RadeNativeError> {
         // SAFETY: raw is a live context.
-        let expected = unsafe { rade_nin(self.raw.as_ptr()) };
-        if expected < 0 {
-            return Err(RadeNativeError::InvalidOutputCount { actual: expected });
-        }
-        let expected = expected as usize;
+        let expected = self.rx_input_count()?;
         if input.len() != expected {
             return Err(RadeNativeError::InputSampleCount {
                 expected,
@@ -237,4 +242,57 @@ impl Drop for RadeContext {
 pub fn finalize() {
     // SAFETY: callers must ensure no RadeContext remains alive.
     unsafe { rade_finalize() }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn native_v1_and_v2_contexts_transmit_feature_frames() {
+        for mode in [RadeMode::V1, RadeMode::V2] {
+            let mut context = RadeContext::open(mode).expect("native RADE context should open");
+            let features = vec![0.0; context.feature_count()];
+            let iq = context
+                .tx_features(&features)
+                .expect("native RADE should transmit a feature frame");
+            assert!(!iq.is_empty(), "{mode:?} should produce IQ samples");
+            assert_eq!(context.mode(), mode);
+        }
+        finalize();
+    }
+
+    #[test]
+    fn native_v1_and_v2_loop_back_feature_frames() {
+        for mode in [RadeMode::V1, RadeMode::V2] {
+            let mut context = RadeContext::open(mode).expect("native RADE context should open");
+            let features = vec![0.0; context.feature_count()];
+            let mut iq = Vec::new();
+            for _ in 0..40 {
+                iq.extend(
+                    context
+                        .tx_features(&features)
+                        .expect("native RADE should transmit a feature frame"),
+                );
+            }
+
+            let mut offset = 0;
+            let mut decoded = false;
+            while offset < iq.len() {
+                let input_count = context
+                    .rx_input_count()
+                    .expect("native RADE should report an RX input size");
+                if offset + input_count > iq.len() {
+                    break;
+                }
+                let result = context
+                    .rx_iq(&iq[offset..offset + input_count])
+                    .expect("native RADE should accept its TX IQ");
+                decoded |= result.features.is_some();
+                offset += input_count;
+            }
+            assert!(decoded, "{mode:?} should decode its software loopback");
+        }
+        finalize();
+    }
 }
