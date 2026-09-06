@@ -3,6 +3,7 @@ use std::path::PathBuf;
 
 fn main() {
     println!("cargo:rerun-if-env-changed=RADE_C_DIR");
+    println!("cargo:rerun-if-env-changed=RADE_C_BUILD_DIR");
     println!("cargo:rerun-if-env-changed=RADE_C_LIB_DIR");
     println!("cargo:rerun-if-changed=src/rade/speech_bridge.c");
 
@@ -10,11 +11,12 @@ fn main() {
         return;
     }
 
+    let build_dir = env::var_os("RADE_C_BUILD_DIR")
+        .map(PathBuf::from)
+        .or_else(|| env::var_os("RADE_C_DIR").map(|dir| PathBuf::from(dir).join("build")));
     let lib_dir = env::var_os("RADE_C_LIB_DIR")
         .map(PathBuf::from)
-        .or_else(|| {
-            env::var_os("RADE_C_DIR").map(|dir| PathBuf::from(dir).join("build").join("src"))
-        });
+        .or_else(|| build_dir.as_ref().map(|dir| dir.join("src")));
 
     match lib_dir {
         Some(path) => {
@@ -25,7 +27,8 @@ fn main() {
                 let Some(rade_dir) = env::var_os("RADE_C_DIR").map(PathBuf::from) else {
                     panic!("rade-speech requires RADE_C_DIR so the upstream FARGAN/LPCNet bridge can be built");
                 };
-                let opus_root = rade_dir.join("build/build_opus-prefix/src/build_opus");
+                let build_dir = build_dir.unwrap_or_else(|| rade_dir.join("build"));
+                let opus_root = build_dir.join("build_opus-prefix/src/build_opus");
                 let opus_lib = opus_root.join(".libs");
                 let opus_dnn = opus_root.join("dnn");
                 let opus_include = opus_root.join("include");

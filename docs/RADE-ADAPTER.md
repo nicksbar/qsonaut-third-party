@@ -7,8 +7,10 @@ and build foundation only; QSONaut and QSONoid are not modified by this work.
 
 Development follows the `main` branch of the FreeDV `rade_c` repository so
 that the adapter can track both RADE V1 and V2 as the upstream project evolves.
-Release and consumer integration must replace that moving reference with an
-immutable commit and a reviewed native-source provenance record.
+The reproducible native build helper currently pins
+`0d5c5f7c27e650e3ca8d9e0f7d4781f2e73ee2b0`; release and consumer integration
+must update that pin deliberately with a reviewed native-source provenance
+record.
 
 The adapter has one RADE surface with a version selector:
 
@@ -72,18 +74,27 @@ part of the RADE IQ modem ABI.
 
 ## Native build
 
-The Rust crate keeps the native dependency opt-in. Build `rade_c` separately,
-then enable the adapter feature with either the library directory or the
-upstream checkout:
+The Rust crate keeps the native dependency opt-in, but the native source is
+owned by this third-party integration boundary rather than duplicated in each
+consumer. Build the pinned upstream checkout with:
 
 ```sh
-cmake -S "$RADE_C_DIR" -B "$RADE_C_DIR/build"
-cmake --build "$RADE_C_DIR/build"
-RADE_C_DIR="$RADE_C_DIR" cargo test -p qsonaut-third-party --features rade-c
+./tools/build-rade-c.sh
 ```
 
-`RADE_C_DIR` is expected to contain the upstream checkout and its CMake build
-places `librade` in `build/src`. `RADE_C_LIB_DIR` may be used instead when the
+Then enable the adapter feature with the printed checkout/build paths:
+
+```sh
+RADE_C_BUILD_DIR="${RADE_C_BUILD_DIR:-$RADE_C_DIR/build}"
+cmake -S "$RADE_C_DIR" -B "$RADE_C_BUILD_DIR"
+cmake --build "$RADE_C_BUILD_DIR"
+RADE_C_DIR="$RADE_C_DIR" RADE_C_BUILD_DIR="$RADE_C_BUILD_DIR" \
+  RADE_C_LIB_DIR="$RADE_C_BUILD_DIR/src" \
+  cargo test -p qsonaut-third-party --features rade-c
+```
+
+`RADE_C_DIR` is expected to contain the upstream checkout. `RADE_C_BUILD_DIR`
+selects its CMake build directory, and `RADE_C_LIB_DIR` may be used when the
 library is installed or built elsewhere. The default workspace feature set
 does not link or fetch native RADE code.
 
@@ -100,6 +111,12 @@ Opus neural-vocoder build. It requires `RADE_C_DIR`, not only an installed
 `librade`, so the build can locate the upstream FARGAN/LPCNet headers and
 static Opus archive. The consumer still owns buffering, device I/O,
 resampling, modem frame aggregation, and scheduling.
+
+The helper does not copy RADE source into QSONaut or fetch a moving upstream
+branch. It caches one immutable upstream checkout and builds the native
+library beside it. The upstream C library is BSD-2-Clause; its required
+attribution and the Opus/FARGAN dependency obligations remain part of the
+third-party distribution notices.
 
 ## Validation gates
 

@@ -42,7 +42,16 @@ jobs:
         with:
           toolchain: stable
           components: rustfmt, clippy
+      - name: Install RADE native build prerequisites
+        run: sudo apt-get update && sudo apt-get install -y autoconf automake libtool
+      - name: Build pinned RADE native dependency
+        run: |
+          ./tools/build-rade-c.sh | tee rade-build-output.txt
+          grep -E '^(RADE_C_DIR|RADE_C_BUILD_DIR|RADE_C_LIB_DIR)=' rade-build-output.txt >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$(grep '^RADE_C_LIB_DIR=' rade-build-output.txt | cut -d= -f2)" >> "$GITHUB_ENV"
       - run: cargo fmt --all -- --check
       - run: cargo metadata --locked --no-deps
       - run: cargo test --workspace --all-targets --locked
+      - name: Test RADE speech adapter
+        run: cargo test --workspace --all-targets --locked --features rade-speech
       - run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
