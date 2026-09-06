@@ -29,6 +29,7 @@ cmake --build "$RADE_C_BUILD_DIR" --parallel
 
 cat <<EOF
 RADE_C_DIR=$RADE_C_DIR
+RADE_C_BUILD_DIR=$RADE_C_BUILD_DIR
 RADE_C_LIB_DIR=$RADE_C_BUILD_DIR/src
 
 Run the consumer with:
