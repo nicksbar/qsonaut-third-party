@@ -87,10 +87,19 @@ places `librade` in `build/src`. `RADE_C_LIB_DIR` may be used instead when the
 library is installed or built elsewhere. The default workspace feature set
 does not link or fetch native RADE code.
 
-The `native` module currently wraps the upstream feature/IQ API: context
-lifecycle, V1/V2 selection, feature-frame TX, IQ-frame RX, end-of-over status,
-V2 data symbols, synchronization, SNR, and audio-frequency offset. Speech
-feature extraction/synthesis remains the next native layer.
+The `native` module wraps the upstream feature/IQ API: context lifecycle,
+V1/V2 selection, feature-frame TX, IQ-frame RX, end-of-over status, V2 data
+symbols, synchronization, SNR, and audio-frequency offset. The optional
+`rade-speech` feature adds `rade::speech::SpeechEncoder` and
+`SpeechDecoder`, which keep the upstream LPCNet/FARGAN state inside the
+adapter and expose 16 kHz `AudioBlock` frames. The decoder owns the required
+five-frame FARGAN warm-up and returns no audio until it is ready.
+
+`rade-speech` is separate from `rade-c` because it also links the upstream
+Opus neural-vocoder build. It requires `RADE_C_DIR`, not only an installed
+`librade`, so the build can locate the upstream FARGAN/LPCNet headers and
+static Opus archive. The consumer still owns buffering, device I/O,
+resampling, modem frame aggregation, and scheduling.
 
 ## Validation gates
 

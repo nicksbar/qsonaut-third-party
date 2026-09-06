@@ -11,6 +11,7 @@ repository = "https://github.com/nicksbar/qsonaut-third-party"
 [features]
 default = []
 rade-c = []
+rade-speech = ["rade-c"]
 
 [dependencies]
 qsonaut-modems.workspace = true
@@ -20,3 +21,6 @@ image.workspace = true
 komitoto-sstv.workspace = true
 cwdit-dsp.workspace = true
 cwdit-morse.workspace = true
+
+[build-dependencies]
+cc = "1"

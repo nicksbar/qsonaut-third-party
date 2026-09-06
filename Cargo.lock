@@ -799,6 +799,7 @@ dependencies = [
 name = "qsonaut-third-party"
 version = "0.1.0"
 dependencies = [
+ "cc",
  "cwdit-dsp",
  "cwdit-morse",
  "image",
