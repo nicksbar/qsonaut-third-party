@@ -8,7 +8,7 @@
 use std::ffi::CString;
 use std::ptr::NonNull;
 
-use qsonaut_modems::{VoiceRxStatus, VoiceSyncState};
+use qsonaut_modems::{AudioBlock, AudioError, VoiceRxStatus, VoiceSyncState};
 
 use super::RadeMode;
 
@@ -31,6 +31,8 @@ pub enum RadeNativeError {
     InputSampleCount { expected: usize, actual: usize },
     #[error("rade_c returned an invalid output count {actual}")]
     InvalidOutputCount { actual: i32 },
+    #[error(transparent)]
+    Audio(#[from] AudioError),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -145,6 +147,24 @@ impl RadeContext {
         }
     }
 
+    /// Encode one feature frame and expose the real IQ component as an 8 kHz
+    /// mono audio block. This follows upstream `rade_tx_wav`: the radio/audio
+    /// consumer receives the real-valued modem waveform, while the native
+    /// adapter retains ownership of the RADE IQ representation.
+    pub fn tx_features_audio(&mut self, features: &[f32]) -> Result<AudioBlock, RadeNativeError> {
+        let iq = self.tx_features(features)?;
+        AudioBlock::new(8_000, iq.into_iter().map(|sample| sample.real).collect())
+            .map_err(RadeNativeError::from)
+    }
+
+    /// Generate a deterministic silence-feature frame through the real RADE
+    /// encoder. This is useful for null-modem fixtures and boundary tests; it
+    /// is not a speech encoder and must not be presented as live microphone TX.
+    pub fn tx_silence_audio(&mut self) -> Result<AudioBlock, RadeNativeError> {
+        let features = vec![0.0; self.feature_count()];
+        self.tx_features_audio(&features)
+    }
+
     pub fn tx_end_of_over(&mut self) -> Result<Vec<RadeIqSample>, RadeNativeError> {
         // SAFETY: output is sized using the live context.
         unsafe {
@@ -257,6 +277,11 @@ mod tests {
                 .tx_features(&features)
                 .expect("native RADE should transmit a feature frame");
             assert!(!iq.is_empty(), "{mode:?} should produce IQ samples");
+            let audio = context
+                .tx_silence_audio()
+                .expect("native RADE should expose a real-valued modem waveform");
+            assert_eq!(audio.sample_rate_hz, 8_000);
+            assert_eq!(audio.samples.len(), iq.len());
             assert_eq!(context.mode(), mode);
         }
         finalize();
