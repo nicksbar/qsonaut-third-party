@@ -9,10 +9,8 @@ description = "QSONaut adapters around third-party modem implementations"
 repository = "https://github.com/nicksbar/qsonaut-third-party"
 
 [features]
-default = []
-rade-c = []
-rade-speech = ["rade-c"]
-rade-bundled = ["rade-speech"]
+default = ["rade-bundled"]
+rade-bundled = []
 
 [dependencies]
 qsonaut-modems.workspace = true

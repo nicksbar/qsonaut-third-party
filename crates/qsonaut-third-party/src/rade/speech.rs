@@ -1,6 +1,6 @@
 //! RADE speech feature extraction and synthesis over the upstream FARGAN/LPCNet
-//! implementation. This remains behind `rade-speech` because it links the
-//! upstream Opus neural-vocoder build in addition to `librade`.
+//! implementation. It links the upstream Opus neural-vocoder build in addition
+//! to `librade`.
 
 use qsonaut_modems::{AudioBlock, AudioError};
 use std::ffi::c_void;

@@ -7,10 +7,8 @@
 
 use qsonaut_modems::{ModemId, VoiceModemCapabilities};
 
-#[cfg(feature = "rade-c")]
 pub mod native;
 
-#[cfg(feature = "rade-speech")]
 pub mod speech;
 
 pub const RADE_V1: ModemId = ModemId("rade-v1");
