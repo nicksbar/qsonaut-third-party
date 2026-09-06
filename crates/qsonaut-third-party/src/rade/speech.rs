@@ -165,4 +165,39 @@ mod tests {
         assert_eq!(audio.samples.len(), FRAME_SAMPLES);
         assert!(audio.samples.iter().all(|sample| sample.is_finite()));
     }
+
+    #[test]
+    fn normalized_speech_roundtrip_is_not_silent() {
+        let mut encoder = SpeechEncoder::open().expect("speech encoder should open");
+        let mut decoder = SpeechDecoder::open().expect("speech decoder should open");
+        let mut decoded = Vec::new();
+        for frame_index in 0..80 {
+            let frame = (0..FRAME_SAMPLES)
+                .map(|sample_index| {
+                    let time = (frame_index * FRAME_SAMPLES + sample_index) as f32 / 16_000.0;
+                    (std::f32::consts::TAU * 180.0 * time).sin() * 0.25
+                })
+                .collect::<Vec<_>>();
+            let features = encoder
+                .encode_frame(&frame)
+                .expect("normalized speech should encode");
+            if let Some(audio) = decoder
+                .decode_frame(&features)
+                .expect("speech features should decode")
+            {
+                decoded.extend(audio.samples);
+            }
+        }
+        let rms = (decoded
+            .iter()
+            .map(|sample| f64::from(*sample) * f64::from(*sample))
+            .sum::<f64>()
+            / decoded.len().max(1) as f64)
+            .sqrt();
+        assert!(decoded.len() > FRAME_SAMPLES * 10);
+        assert!(
+            rms > 1e-4,
+            "normalized speech roundtrip was silent: rms={rms}"
+        );
+    }
 }

@@ -47,8 +47,23 @@ int qsonaut_rade_speech_encode_frame(
 ) {
     rade_speech_encoder *encoder = opaque;
     if (!encoder || !pcm || !features) return -1;
+
+    /*
+     * QSONaut's AudioBlock contract uses normalized float PCM, while the
+     * upstream LPCNet feature extractor uses the signed-16-bit speech scale.
+     * The upstream rade_tx_wav path performs this conversion before feature
+     * extraction. Keep that conversion inside this bridge so every Rust
+     * consumer gets the same LPCNet input contract.
+     */
+    float scaled_pcm[RADE_SPEECH_FRAME_SAMPLES];
+    for (int index = 0; index < RADE_SPEECH_FRAME_SAMPLES; index++) {
+        float sample = pcm[index] * 32768.0f;
+        if (sample > 32767.0f) sample = 32767.0f;
+        if (sample < -32767.0f) sample = -32767.0f;
+        scaled_pcm[index] = sample;
+    }
     return lpcnet_compute_single_frame_features_float(
-        encoder->encoder, pcm, features, encoder->arch
+        encoder->encoder, scaled_pcm, features, encoder->arch
     );
 }
 
