@@ -1,5 +1,6 @@
 use std::env;
 use std::path::PathBuf;
+use std::process::Command;
 
 fn main() {
     println!("cargo:rerun-if-env-changed=RADE_C_DIR");
@@ -11,12 +12,36 @@ fn main() {
         return;
     }
 
-    let build_dir = env::var_os("RADE_C_BUILD_DIR")
-        .map(PathBuf::from)
-        .or_else(|| env::var_os("RADE_C_DIR").map(|dir| PathBuf::from(dir).join("build")));
-    let lib_dir = env::var_os("RADE_C_LIB_DIR")
-        .map(PathBuf::from)
-        .or_else(|| build_dir.as_ref().map(|dir| dir.join("src")));
+    let bundled = env::var_os("CARGO_FEATURE_RADE_BUNDLED").is_some();
+    let mut rade_dir = env::var_os("RADE_C_DIR").map(PathBuf::from);
+    let mut build_dir = env::var_os("RADE_C_BUILD_DIR").map(PathBuf::from);
+    let mut lib_dir = env::var_os("RADE_C_LIB_DIR").map(PathBuf::from);
+
+    if bundled && rade_dir.is_none() {
+        let helper = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
+            .join("../../tools/build-rade-c.sh");
+        let output = Command::new(&helper)
+            .output()
+            .unwrap_or_else(|error| panic!("failed to run {}: {error}", helper.display()));
+        if !output.status.success() {
+            panic!(
+                "bundled RADE build failed: {}",
+                String::from_utf8_lossy(&output.stderr).trim()
+            );
+        }
+        for line in String::from_utf8_lossy(&output.stdout).lines() {
+            if let Some(value) = line.strip_prefix("RADE_C_DIR=") {
+                rade_dir = Some(PathBuf::from(value));
+            } else if let Some(value) = line.strip_prefix("RADE_C_BUILD_DIR=") {
+                build_dir = Some(PathBuf::from(value));
+            } else if let Some(value) = line.strip_prefix("RADE_C_LIB_DIR=") {
+                lib_dir = Some(PathBuf::from(value));
+            }
+        }
+    }
+
+    let build_dir = build_dir.or_else(|| rade_dir.as_ref().map(|dir| dir.join("build")));
+    let lib_dir = lib_dir.or_else(|| build_dir.as_ref().map(|dir| dir.join("src")));
 
     match lib_dir {
         Some(path) => {
@@ -24,7 +49,7 @@ fn main() {
             println!("cargo:rustc-link-lib=dylib=rade");
 
             if env::var_os("CARGO_FEATURE_RADE_SPEECH").is_some() {
-                let Some(rade_dir) = env::var_os("RADE_C_DIR").map(PathBuf::from) else {
+                let Some(rade_dir) = rade_dir else {
                     panic!("rade-speech requires RADE_C_DIR so the upstream FARGAN/LPCNet bridge can be built");
                 };
                 let build_dir = build_dir.unwrap_or_else(|| rade_dir.join("build"));

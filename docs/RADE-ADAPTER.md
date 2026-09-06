@@ -98,6 +98,13 @@ selects its CMake build directory, and `RADE_C_LIB_DIR` may be used when the
 library is installed or built elsewhere. The default workspace feature set
 does not link or fetch native RADE code.
 
+Consumers that ship the desktop/native RADE path can use
+`--features rade-bundled`. When `RADE_C_DIR` is not supplied, the build script
+invokes `tools/build-rade-c.sh`, which checks out the pinned upstream revision
+into the shared cache and builds it there. This removes per-consumer source
+checkout and environment setup while keeping the generic adapter feature
+available for targets that provide their own native library.
+
 The `native` module wraps the upstream feature/IQ API: context lifecycle,
 V1/V2 selection, feature-frame TX, IQ-frame RX, end-of-over status, V2 data
 symbols, synchronization, SNR, and audio-frequency offset. The optional
