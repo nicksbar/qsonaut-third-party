@@ -1,9 +1,7 @@
 //! FFI wrapper for the public `rade_c` API.
 //!
-//! Enable with the crate's `rade-c` feature and provide either
-//! `RADE_C_LIB_DIR` or `RADE_C_DIR` (with `build/src/librade.so`). The native
-//! library is intentionally external: it is a moving development dependency
-//! during upstream tracking and an immutable source/build artifact at release.
+//! The bundled RADE native library is built as part of the crate and tracked
+//! through the third-party adapter boundary.
 
 use std::ffi::CString;
 use std::ptr::NonNull;
