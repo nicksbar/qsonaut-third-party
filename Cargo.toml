@@ -20,7 +20,7 @@ license = "GPL-3.0-or-later"
 authors = ["QSONaut Contributors"]
 
 [workspace.dependencies]
-qsonaut-modems = { git = "https://github.com/nicksbar/qsonaut-modems.git", rev = "6cc26b8" }
+qsonaut-modems = { git = "https://github.com/nicksbar/qsonaut-modems.git", rev = "b33d7bd" }
 # Development follows upstream main. Pin this dependency to an mfsk-core
 # release before publishing a qsonaut-third-party release.
 mfsk-core = { git = "https://github.com/jl1nie/mfsk-core.git", default-features = false, features = ["full"] }

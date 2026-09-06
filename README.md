@@ -2,6 +2,16 @@
 
 Adapters around third-party amateur-radio modem implementations.
 
+## RADE
+
+The `feature/rade-adapter-foundation` work tracks FreeDV's `rade_c` upstream
+development for a single RADE V1/V2 adapter surface. V2 remains explicitly
+labeled as an upstream-development waveform; it is not split into a separate
+consumer or GUI path. See [docs/RADE-ADAPTER.md](docs/RADE-ADAPTER.md) for the
+boundary, native-build feature, validation gates, and update workflow. The
+native layer is enabled explicitly with the `rade-c` Cargo feature and an
+external `rade_c` build directory.
+
 This repository is the licensing boundary for protocol libraries that are not
 QSONaut work products. Its adapters translate those libraries into the
 UI-independent contracts defined by

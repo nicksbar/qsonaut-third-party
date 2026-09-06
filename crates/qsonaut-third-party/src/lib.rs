@@ -5,6 +5,7 @@
 
 pub mod cw;
 mod errors;
+pub mod rade;
 pub mod sstv;
 pub mod wsjt;
 
