@@ -6,6 +6,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=RADE_C_DIR");
     println!("cargo:rerun-if-env-changed=RADE_C_BUILD_DIR");
     println!("cargo:rerun-if-env-changed=RADE_C_LIB_DIR");
+    println!("cargo:rerun-if-env-changed=MSYS2_BASH");
     println!("cargo:rerun-if-changed=src/rade/speech_bridge.c");
 
     let mut rade_dir = env::var_os("RADE_C_DIR").map(PathBuf::from);
@@ -21,7 +22,19 @@ fn main() {
         // Bash treats backslashes in a Windows path as escape characters, so
         // use slash-separated path syntax when crossing that boundary.
         let mut command = if cfg!(windows) {
-            let mut command = Command::new("bash");
+            let bash = env::var_os("MSYS2_BASH")
+                .map(PathBuf::from)
+                .filter(|path| path.is_file())
+                .or_else(|| {
+                    [
+                        PathBuf::from(r"C:\msys64\usr\bin\bash.exe"),
+                        PathBuf::from(r"C:\Program Files\Git\bin\bash.exe"),
+                    ]
+                    .into_iter()
+                    .find(|path| path.is_file())
+                })
+                .unwrap_or_else(|| PathBuf::from("bash"));
+            let mut command = Command::new(bash);
             let helper_for_bash = helper.to_string_lossy().replace('\\', "/");
             command.arg(helper_for_bash);
             command
