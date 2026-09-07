@@ -15,7 +15,17 @@ fn main() {
     if rade_dir.is_none() {
         let helper = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
             .join("../../tools/build-rade-c.sh");
-        let output = Command::new(&helper)
+        // GitHub's Windows runners provide Bash through Git for Windows, but
+        // Windows cannot execute a `.sh` file directly. Invoke the helper
+        // through Bash on Windows while preserving direct execution on Unix.
+        let mut command = if cfg!(windows) {
+            let mut command = Command::new("bash");
+            command.arg(&helper);
+            command
+        } else {
+            Command::new(&helper)
+        };
+        let output = command
             .output()
             .unwrap_or_else(|error| panic!("failed to run {}: {error}", helper.display()));
         if !output.status.success() {
