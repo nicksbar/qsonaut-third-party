@@ -30,6 +30,22 @@ git -C "$RADE_C_DIR" checkout --quiet --detach "$RADE_C_COMMIT"
 # is a deterministic platform adaptation, not an upstream revision change.
 case "$(uname -s)" in
     MINGW*|MSYS*|CYGWIN*)
+        for tool in sh autoreconf make patch; do
+            if ! command -v "$tool" >/dev/null 2>&1; then
+                echo "Windows RADE builds require '$tool' from MSYS2 (install the MSYS2 base and autotools packages)." >&2
+                exit 1
+            fi
+        done
+
+        # RADE's Opus ExternalProject contains Unix autotools commands.  The
+        # Visual Studio generator otherwise sends ./configure and make to
+        # cmd.exe, where neither command can run.  Route those commands
+        # through the MSYS2 shell while retaining MSVC for the native RADE
+        # targets.
+        opus_cmake="$RADE_C_DIR/cmake/BuildOpus.cmake"
+        sed -i 's#^set(CONFIGURE_COMMAND ./autogen.sh#set(CONFIGURE_COMMAND sh -c \"./autogen.sh#' "$opus_cmake"
+        sed -i '/^set(CONFIGURE_COMMAND sh -c/ s#)$#\")#' "$opus_cmake"
+        sed -i 's#BUILD_COMMAND.*MAKE.*#BUILD_COMMAND sh -c \"make\"#' "$opus_cmake"
         sed -i 's/ m)/)/g' "$RADE_C_DIR/src/CMakeLists.txt"
         ;;
 esac

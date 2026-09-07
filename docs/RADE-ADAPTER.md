@@ -98,6 +98,12 @@ selects its CMake build directory, and `RADE_C_LIB_DIR` may be used when the
 library is installed or built elsewhere. The default workspace feature set
 does not link or fetch native RADE code.
 
+On Windows, the bundled build requires MSYS2 in addition to Visual Studio
+Build Tools, CMake, and the Windows SDK. Install the MSYS2 `autoconf`,
+`automake`, `libtool`, `make`, and `patch` packages. The build selects
+`C:\\msys64\\usr\\bin\\bash.exe` automatically; set `MSYS2_BASH` when MSYS2
+is installed elsewhere.
+
 Consumers that ship the desktop/native RADE path can use
 `--features rade-bundled`. When `RADE_C_DIR` is not supplied, the build script
 invokes `tools/build-rade-c.sh`, which checks out the pinned upstream revision
