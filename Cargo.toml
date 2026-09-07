@@ -21,9 +21,9 @@ authors = ["QSONaut Contributors"]
 
 [workspace.dependencies]
 qsonaut-modems = { git = "https://github.com/nicksbar/qsonaut-modems.git", rev = "c93660a34b9ed65ea1eb46df57ffc856eb68e797" }
-# Development follows upstream main. Pin this dependency to an mfsk-core
-# release before publishing a qsonaut-third-party release.
-mfsk-core = { git = "https://github.com/jl1nie/mfsk-core.git", default-features = false, features = ["full"] }
+# Keep the adapter reproducible while retaining the local sibling patch above
+# for development checkouts.
+mfsk-core = { git = "https://github.com/jl1nie/mfsk-core.git", rev = "c9eec972bb0881982c4de9b2ef604f55dfa97686", default-features = false, features = ["full"] }
 thiserror = "2"
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 komitoto-sstv = { git = "https://github.com/IRendy/komitoto.git", rev = "c98945f7c89f714b3182457a86b15a0c43cb6de6" }

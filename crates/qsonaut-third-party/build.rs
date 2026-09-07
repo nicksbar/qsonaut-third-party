@@ -15,7 +15,17 @@ fn main() {
     if rade_dir.is_none() {
         let helper = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
             .join("../../tools/build-rade-c.sh");
-        let output = Command::new(&helper)
+        // GitHub's Windows runners provide Bash through Git for Windows, but
+        // Windows cannot execute a `.sh` file directly. Invoke the helper
+        // through Bash on Windows while preserving direct execution on Unix.
+        let mut command = if cfg!(windows) {
+            let mut command = Command::new("bash");
+            command.arg(&helper);
+            command
+        } else {
+            Command::new(&helper)
+        };
+        let output = command
             .output()
             .unwrap_or_else(|error| panic!("failed to run {}: {error}", helper.display()));
         if !output.status.success() {
@@ -42,7 +52,9 @@ fn main() {
         Some(path) => {
             println!("cargo:rustc-link-search=native={}", path.display());
             println!("cargo:rustc-link-lib=dylib=rade");
-            println!("cargo:rustc-link-arg=-Wl,-rpath,{}", path.display());
+            if cfg!(unix) {
+                println!("cargo:rustc-link-arg=-Wl,-rpath,{}", path.display());
+            }
 
             let rade_dir = rade_dir.expect("bundled RADE build did not report RADE_C_DIR");
             let build_dir = build_dir.unwrap_or_else(|| rade_dir.join("build"));
@@ -60,7 +72,9 @@ fn main() {
                 .compile("qsonaut_rade_speech_bridge");
             println!("cargo:rustc-link-search=native={}", opus_lib.display());
             println!("cargo:rustc-link-lib=static=opus");
-            println!("cargo:rustc-link-lib=m");
+            if cfg!(unix) {
+                println!("cargo:rustc-link-lib=m");
+            }
         }
         None => {
             println!("bundled RADE build did not provide RADE_C_LIB_DIR or RADE_C_DIR");
