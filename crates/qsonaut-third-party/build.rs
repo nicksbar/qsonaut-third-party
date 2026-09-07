@@ -18,9 +18,12 @@ fn main() {
         // GitHub's Windows runners provide Bash through Git for Windows, but
         // Windows cannot execute a `.sh` file directly. Invoke the helper
         // through Bash on Windows while preserving direct execution on Unix.
+        // Bash treats backslashes in a Windows path as escape characters, so
+        // use slash-separated path syntax when crossing that boundary.
         let mut command = if cfg!(windows) {
             let mut command = Command::new("bash");
-            command.arg(&helper);
+            let helper_for_bash = helper.to_string_lossy().replace('\\', "/");
+            command.arg(helper_for_bash);
             command
         } else {
             Command::new(&helper)
@@ -29,9 +32,20 @@ fn main() {
             .output()
             .unwrap_or_else(|error| panic!("failed to run {}: {error}", helper.display()));
         if !output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            let details = [stdout, stderr]
+                .into_iter()
+                .filter(|text| !text.is_empty())
+                .collect::<Vec<_>>()
+                .join("\n");
             panic!(
-                "bundled RADE build failed: {}",
-                String::from_utf8_lossy(&output.stderr).trim()
+                "bundled RADE build failed{}",
+                if details.is_empty() {
+                    ".".to_string()
+                } else {
+                    format!(":\n{details}")
+                }
             );
         }
         for line in String::from_utf8_lossy(&output.stdout).lines() {
