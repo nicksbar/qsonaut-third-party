@@ -24,6 +24,16 @@ if ! git -C "$RADE_C_DIR" cat-file -e "$RADE_C_COMMIT^{commit}" 2>/dev/null; the
 fi
 git -C "$RADE_C_DIR" checkout --quiet --detach "$RADE_C_COMMIT"
 
+# RADE's CMake file links libm unconditionally for Unix builds. MSVC does not
+# provide m.lib, so remove that Unix-only dependency from the pinned checkout
+# before configuring the Windows build. Keep the source checkout pinned; this
+# is a deterministic platform adaptation, not an upstream revision change.
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*)
+        sed -i 's/ m)/)/g' "$RADE_C_DIR/src/CMakeLists.txt"
+        ;;
+esac
+
 cmake -S "$RADE_C_DIR" -B "$RADE_C_BUILD_DIR" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$RADE_C_BUILD_DIR" --parallel
 

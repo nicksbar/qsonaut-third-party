@@ -29,9 +29,20 @@ fn main() {
             .output()
             .unwrap_or_else(|error| panic!("failed to run {}: {error}", helper.display()));
         if !output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            let details = [stdout, stderr]
+                .into_iter()
+                .filter(|text| !text.is_empty())
+                .collect::<Vec<_>>()
+                .join("\n");
             panic!(
-                "bundled RADE build failed: {}",
-                String::from_utf8_lossy(&output.stderr).trim()
+                "bundled RADE build failed{}",
+                if details.is_empty() {
+                    ".".to_string()
+                } else {
+                    format!(":\n{details}")
+                }
             );
         }
         for line in String::from_utf8_lossy(&output.stdout).lines() {
