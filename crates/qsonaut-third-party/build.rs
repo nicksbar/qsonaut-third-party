@@ -18,9 +18,12 @@ fn main() {
         // GitHub's Windows runners provide Bash through Git for Windows, but
         // Windows cannot execute a `.sh` file directly. Invoke the helper
         // through Bash on Windows while preserving direct execution on Unix.
+        // Bash treats backslashes in a Windows path as escape characters, so
+        // use slash-separated path syntax when crossing that boundary.
         let mut command = if cfg!(windows) {
             let mut command = Command::new("bash");
-            command.arg(&helper);
+            let helper_for_bash = helper.to_string_lossy().replace('\\', "/");
+            command.arg(helper_for_bash);
             command
         } else {
             Command::new(&helper)
