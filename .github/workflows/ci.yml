@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: nicksbar/qsonaut-modems
-          ref: b33d7bdff7f97c365ff2107fb388f26925353bc3
+          ref: c93660a34b9ed65ea1eb46df57ffc856eb68e797
           path: ci-deps/qsonaut-modems
       - uses: actions/checkout@v4
         with:
