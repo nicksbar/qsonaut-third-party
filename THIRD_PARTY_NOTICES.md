@@ -6,8 +6,9 @@ implementations. Each dependency retains its own license and attribution.
 ## mfsk-core
 
 - Source: https://github.com/jl1nie/mfsk-core
-- Development: follows the upstream `main` branch; release builds must
-  record the exact mfsk-core release here.
+- Revision: `ce9affcfd0c9c5205bbe464224e1c3ca55dafba5`
+- The pinned revision corresponds to the `0.10.2` package used by this
+  release line; update this entry whenever the dependency is refreshed.
 - License: GPL-3.0-or-later
 - Used for: WSJT-family digital modem decoding and synthesis.
 - Upstream attribution: the project documents its derivation from WSJT-X and
