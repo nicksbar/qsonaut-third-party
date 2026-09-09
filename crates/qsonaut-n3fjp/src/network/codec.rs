@@ -68,7 +68,7 @@ impl Decoder {
             return Err(invalid("odd UTF-16 frame length"));
         }
         let units: Vec<_> = payload
-            .chunks_exact(2)
+            .chunks(2)
             .map(|b| u16::from_le_bytes([b[0], b[1]]))
             .collect();
         let body = String::from_utf16(&units).map_err(|_| invalid("invalid UTF-16 frame"))?;
