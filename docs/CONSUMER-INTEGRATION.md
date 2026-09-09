@@ -80,3 +80,10 @@ The standalone repository manifest uses an immutable Git revision of
 directory. During local cross-repository development, a temporary sibling path
 override may be used, but it must not be committed or released. Update the Git
 revision deliberately when the contract repository changes.
+
+## N3FJP integration
+
+The `qsonaut-n3fjp` crate is independently usable without modem dependencies.
+Follow [N3FJP.md](N3FJP.md) for connection configuration, entry/event mapping,
+ambiguous-result handling, and the mandatory consumer transmit/disarm wiring.
+QSONaut and QSONoid have not been modified for this adapter.

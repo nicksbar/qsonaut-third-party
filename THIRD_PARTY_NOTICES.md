@@ -39,3 +39,15 @@ The extracted `cw` adapter adds QSONaut's selected-channel filter, envelope
 slicing, and streaming accumulation around the upstream IO-free crates.
 
 No native voice-modem dependencies are included in this adapter set.
+
+## N3FJP protocol adapter
+
+- Source specification: https://www.n3fjp.com/help/api.html (API 2.2, checked 2026-09-09).
+- Network evidence: YAHAML documentation and relay behavior at
+  `7af0117b722d95bc8eaf2995a9996b0b6935aa8a`.
+- Implementation: original Rust adapter code under this repository's
+  GPL-3.0-or-later license; no N3FJP binaries or implementation source are bundled.
+- N3FJP software and its documentation remain the work of N3FJP Software /
+  Affirmatech, Inc. Protocol compatibility does not imply endorsement.
+- Dependency: Serde `1.0.229`, https://github.com/serde-rs/serde, MIT OR Apache-2.0,
+  used for configuration serialization; retain its upstream notices.

@@ -1,6 +1,6 @@
 # qsonaut-third-party
 
-Adapters around third-party amateur-radio modem implementations.
+Adapters around third-party amateur-radio modems and N3FJP logging protocols.
 
 This repository is the licensing boundary for protocol libraries that are not
 QSONaut work products. Its adapters translate those libraries into the
@@ -14,6 +14,13 @@ Q65 submode, and MSK144 through the pinned `mfsk-core` Git revision, plus the ex
 streaming/VIS implementation and selected-channel CW DSP adapter. WSJT modes use
 one `WsjtMode`/`WsjtDecodeConfig` dispatch surface and return normalized
 `qsonaut-modems` batches.
+
+## N3FJP logging protocols
+
+The standalone [`qsonaut-n3fjp`](crates/qsonaut-n3fjp) crate implements the
+published N3FJP API 2.2 and the separate captured station-network protocol. It
+provides configurable, opt-in TCP clients without modem dependencies. See
+[protocol coverage and validation boundaries](docs/N3FJP.md).
 
 ## Consumer boundary
 

@@ -1,0 +1,9 @@
+[package]
+name = "qsonaut-n3fjp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "N3FJP API and station-network protocols with opt-in TCP clients"
+
+[dependencies]
+serde = { version = "=1.0.229", features = ["derive"] }
