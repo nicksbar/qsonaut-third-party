@@ -796,6 +796,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "qsonaut-n3fjp"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "qsonaut-third-party"
 version = "0.1.0"
 dependencies = [

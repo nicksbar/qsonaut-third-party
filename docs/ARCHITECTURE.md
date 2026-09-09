@@ -31,3 +31,10 @@ The adapter's 12 kHz requirement applies only to its input `AudioBlock`; it is
 not a requirement that a consumer capture, monitor, or record at 12 kHz. See
 [AUDIO-DECODER-CONTRACT.md](AUDIO-DECODER-CONTRACT.md) for the full-rate
 capture and decoder-stream boundary.
+
+## External logger protocols
+
+`qsonaut-n3fjp` is an independent crate for N3FJP API and station-network wire
+protocols and explicit TCP sessions. It has no modem-contract dependency.
+Contact storage, UI, retry policy, and radio ownership stay in consumers.
+See [N3FJP.md](N3FJP.md) for protocol evidence and boundaries.

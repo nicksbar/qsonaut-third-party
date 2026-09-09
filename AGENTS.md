@@ -88,3 +88,16 @@ physical-radio validation.
 4. Run the complete validation commands.
 5. State clearly whether the result is fixture-tested, host-tested, Android
    cross-compiled, or live-radio validated.
+
+## External logger protocol adapters
+
+- `crates/qsonaut-n3fjp` owns N3FJP wire types, configuration contracts, and
+  explicit TCP sessions. AudioBlock/sample-rate requirements apply to modem
+  adapters, not this crate. Consumers retain log persistence, UI, scheduling,
+  dedupe, and retry decisions.
+- Keep published API and captured station-network protocols separate. Update
+  `docs/N3FJP.md` when protocol coverage or evidence changes.
+- Preserve the explicit transmit authorization and consumer disarm gate in
+  `docs/N3FJP.md`; incoming events must never automatically control hardware.
+- Validate golden wire framing, fragmented streams, and localhost sessions.
+  Do not present fixture or loopback proof as live N3FJP interoperability.

@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/qsonaut-third-party"]
+members = ["crates/qsonaut-third-party", "crates/qsonaut-n3fjp"]
 resolver = "2"
 
 # Resolve sibling RigForge checkouts locally for development and tests.
