@@ -38,21 +38,4 @@ streaming VIS, auto-target, frequency-offset, and 12 kHz integration logic.
 The extracted `cw` adapter adds QSONaut's selected-channel filter, envelope
 slicing, and streaming accumulation around the upstream IO-free crates.
 
-## RADE (`rade_c`)
-
-- Source: https://github.com/freedv/rade_c
-- Development: follow upstream `main`; release builds must record the exact
-  immutable commit used by the native build.
-- License: BSD-2-Clause. Preserve the upstream license and attribution.
-- Used for: RADE V1 and V2 digital-voice modem encoding and decoding.
-- Native dependencies: the upstream build includes the FARGAN/Opus speech
-  feature and synthesis path; record the exact dependency revisions and
-  notices with each release.
-- Status: V1 is the initial integration target. V2 is intentionally exposed
-  through the same adapter surface, but must remain visibly labeled as an
-  upstream-development waveform whose API, weights, and wire behavior may
-  change incompatibly.
-
-No RADE source is copied into this repository. The adapter must consume a
-reviewed, reproducible `rade_c` checkout and must not fetch unpinned native
-source during a normal consumer build.
+No native voice-modem dependencies are included in this adapter set.

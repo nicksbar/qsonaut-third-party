@@ -58,23 +58,6 @@ telemetry types.
 `E120`, and `A300`. JT65 remains JT65A because the pinned backend does not
 currently provide usable JT65B or JT65C protocol types.
 
-## RADE voice boundary
-
-With the optional `rade-c` feature and an external `rade_c` build,
-`rade::native::RadeContext::tx_features_audio` converts one validated RADE
-feature frame into the real-valued 8 kHz modem waveform used by the upstream
-WAV transmitter. `tx_silence_audio` provides a deterministic feature fixture
-for null-modem and boundary tests. These methods exercise the actual V1/V2
-RADE encoder; they do not claim that arbitrary microphone PCM has been
-converted into FARGAN features.
-
-The optional `rade-speech` feature closes that speech seam inside the adapter:
-`rade::speech::SpeechEncoder` accepts one 10 ms, 16 kHz PCM frame and returns
-one LPCNet/FARGAN feature frame; `SpeechDecoder` accepts one feature frame and
-returns 16 kHz PCM after its five-frame FARGAN warm-up. It links the upstream
-Opus neural-vocoder build through `RADE_C_DIR`, while the adapter still does
-not own audio devices, resampling, modem-frame aggregation, or TX scheduling.
-
 ## Audio boundary clarification
 
 The adapter consumes a modem-specific 12 kHz `AudioBlock`, while a station may
