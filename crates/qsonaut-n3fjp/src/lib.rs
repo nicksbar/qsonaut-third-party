@@ -5,6 +5,7 @@ pub mod api;
 mod config;
 pub mod network;
 mod transport;
+pub mod udp;
 mod wire;
 pub use config::Config;
 use std::io;
