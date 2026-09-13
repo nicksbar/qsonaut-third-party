@@ -1,6 +1,7 @@
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use mfsk_core::{
+    engine::equalize::EqMode,
     ft4::Ft4,
     ft8::{decode::WsjtxDepth, Ft8},
     msg::{decode_request::DecodeRequest, wsjt77::unpack77},
@@ -22,7 +23,7 @@ pub fn decode_ft8(
     } else {
         WsjtxDepth::D1
     };
-    let outcome = DecodeRequest::<Ft8>::wsjtx_depth(
+    let request = DecodeRequest::<Ft8>::wsjtx_depth(
         &pcm,
         config.frequency_min_hz,
         config.frequency_max_hz,
@@ -30,8 +31,19 @@ pub fn decode_ft8(
         config.max_candidates,
         depth,
         None,
-    )
-    .decode();
+    );
+    let request = if config.local_equalization {
+        request.eq_mode(EqMode::Local)
+    } else {
+        request
+    };
+    let outcome = if let Some(budget_ms) = config.decode_budget_ms {
+        let deadline = Instant::now() + Duration::from_millis(budget_ms);
+        let budget_check = || Instant::now() < deadline;
+        request.budget(&budget_check).decode()
+    } else {
+        request.decode()
+    };
     let events = outcome
         .results
         .into_iter()
@@ -65,8 +77,20 @@ pub fn decode_ft4(
         config.max_candidates,
     )
     .freq_hint(config.frequency_hint_hz.unwrap_or(0.0));
-    let outcome = if config.deep_decode {
-        request.sic_rounds(3).decode()
+    let request = if config.deep_decode {
+        request.sic_rounds(3)
+    } else {
+        request
+    };
+    let request = if config.local_equalization {
+        request.eq_mode(EqMode::Local)
+    } else {
+        request
+    };
+    let outcome = if let Some(budget_ms) = config.decode_budget_ms {
+        let deadline = Instant::now() + Duration::from_millis(budget_ms);
+        let budget_check = || Instant::now() < deadline;
+        request.budget(&budget_check).decode()
     } else {
         request.decode()
     };

@@ -1,5 +1,6 @@
 //! Standard WSJT-family adapter surface.
 
+mod capabilities;
 mod common;
 mod config;
 mod digital;
@@ -8,6 +9,10 @@ mod synthesis;
 
 use common::to_pcm;
 
+pub use capabilities::{
+    protocol_capabilities, protocol_capability, WsjtCapabilities, WsjtProtocolInfo,
+    WsjtSearchDefaults, WsjtSyncScale,
+};
 pub use config::{Fst4Submode, Q65Submode, WsjtDecodeConfig, WsjtMode};
 pub use digital::{decode_ft4, decode_ft8};
 pub use scans::{decode_fst4, decode_jt65, decode_jt9, decode_msk144, decode_q65, decode_wspr};

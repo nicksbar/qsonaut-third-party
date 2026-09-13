@@ -52,3 +52,13 @@ frequency, own a radio, or schedule a slot.
 See [CONSUMER-INTEGRATION.md](CONSUMER-INTEGRATION.md) for the migration gate
 and [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) for pinned sources and
 licensing obligations.
+
+## 0.11 decode controls
+
+`WsjtDecodeConfig::decode_budget_ms` is a caller-owned wall-clock limit for
+FT8, FT4, and FST4 candidate work. A budget report is retained by the upstream
+decoder, but this adapter currently exposes the normalized batch and telemetry
+contract only; it does not add a second result type. `local_equalization` is an
+opt-in Costas-pilot equalizer for those same frame modes. It is intentionally
+off by default because equalization is useful for a tilted analogue filter but
+can reduce recall on flat recorded or simulated audio.
