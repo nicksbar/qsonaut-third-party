@@ -833,7 +833,7 @@ dependencies = [
 [[package]]
 name = "qsonaut-modems"
 version = "0.1.0"
-source = "git+https://github.com/nicksbar/qsonaut-modems.git?rev=c93660a34b9ed65ea1eb46df57ffc856eb68e797#c93660a34b9ed65ea1eb46df57ffc856eb68e797"
+source = "git+https://github.com/nicksbar/qsonaut-modems.git?rev=3a4f815e7afabe492de60dea72ca00224261c062#3a4f815e7afabe492de60dea72ca00224261c062"
 dependencies = [
  "thiserror",
 ]
