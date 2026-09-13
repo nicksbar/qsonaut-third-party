@@ -46,10 +46,15 @@ validated.
 
 `WsjtDecodeConfig` is the shared adapter configuration. Its frequency range,
 sync threshold, time window, score threshold, candidate budget, deep-decode
-flag, and optional frequency hint are passed by the consumer; the adapter does
-not read GUI profile state. The adapter translates those common controls into
-each protocol's native search parameter type, including the asymmetric Q65
-window and the WSPR/JT9/JT65 coarse-search controls.
+flag, optional frequency hint, optional decode wall-clock budget, and optional
+local equalization flag are passed by the consumer; the adapter does not read
+GUI profile state. The last two options are supported for FT8, FT4, and FST4;
+the other protocol families retain their native search behavior. Consumers
+should use `wsjt::protocol_capabilities()` to enable controls from capability
+metadata rather than assuming every mode accepts every field. The adapter
+translates the common controls into each protocol's native search parameter
+type, including the asymmetric Q65 window and the WSPR/JT9/JT65 coarse-search
+controls.
 `DecodeBatch::telemetry` reports elapsed decode time, input sample count, and
 decoded event count without coupling the adapter to QSONaut's compute-backend
 telemetry types.
@@ -57,6 +62,25 @@ telemetry types.
 `Q65Submode` exposes `A15`, `A30`, `A60`, `B60`, `C60`, `D60`, `E60`, `D120`,
 `E120`, and `A300`. JT65 remains JT65A because the pinned backend does not
 currently provide usable JT65B or JT65C protocol types.
+
+The upstream 0.11 registry describes the FT/JT/Q/FST4 geometry. MSK144 is
+also returned by `protocol_capabilities()`, but it is represented with
+adapter-owned geometry because its separate burst decoder is not part of that
+registry and has no FFT1 decode stage. Experimental UVPacket entries are not
+returned as WSJT modes.
+
+## 0.11 capabilities intentionally left behind the boundary
+
+The upstream `DecodeOutcome` also carries reusable FFT cache data and a
+per-decode budget report, and its frame/Q65 requests support synchronous
+streaming callbacks, known-signal subtraction, AP hints, and (for Q65)
+fading-model selection and callsign-hash resolution. Those are real upstream
+capabilities, but `qsonaut-modems` currently defines a normalized batch/event
+contract rather than a cache, callback, or protocol-specific hint contract.
+The adapter therefore exposes only the safe shared controls now: budget input,
+local equalization, and capability discovery. Promoting the remaining options
+should be a deliberate `qsonaut-modems` contract change, not an upstream type
+leak or a collection of ad hoc fields.
 
 ## Audio boundary clarification
 
@@ -75,11 +99,11 @@ cd /home/nick/RigForge/qsonaut-third-party
 cargo test --workspace --all-targets
 ```
 
-The standalone repository manifest uses an immutable Git revision of
-`qsonaut-modems`, so CI and consumers can check it out without a sibling
-directory. During local cross-repository development, a temporary sibling path
-override may be used, but it must not be committed or released. Update the Git
-revision deliberately when the contract repository changes.
+The standalone repository manifest uses immutable Git revisions for its
+external contracts and modem libraries, so CI and consumers do not need sibling
+directories. During local cross-repository development, a temporary sibling
+path override may be added locally, but it must not be committed or released.
+Update each Git revision deliberately when a contract repository changes.
 
 ## N3FJP integration
 

@@ -17,27 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout local workspace dependencies
-        uses: actions/checkout@v4
-        with:
-          repository: nicksbar/qsonaut-modems
-          ref: c93660a34b9ed65ea1eb46df57ffc856eb68e797
-          path: ci-deps/qsonaut-modems
-      - uses: actions/checkout@v4
-        with:
-          repository: jl1nie/mfsk-core
-          ref: ce9affcfd0c9c5205bbe464224e1c3ca55dafba5
-          path: ci-deps/mfsk-core
-      - uses: actions/checkout@v4
-        with:
-          repository: swilcox/cw-dit
-          ref: main
-          path: ci-deps/cw-dit
-      - name: Link local workspace dependencies
-        run: |
-          ln -s "$GITHUB_WORKSPACE/ci-deps/qsonaut-modems" "$GITHUB_WORKSPACE/../qsonaut-modems"
-          ln -s "$GITHUB_WORKSPACE/ci-deps/mfsk-core" "$GITHUB_WORKSPACE/../mfsk-core"
-          ln -s "$GITHUB_WORKSPACE/ci-deps/cw-dit" "$GITHUB_WORKSPACE/../cw-dit"
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable

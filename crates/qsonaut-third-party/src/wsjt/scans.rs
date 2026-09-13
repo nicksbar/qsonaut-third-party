@@ -1,6 +1,6 @@
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
-use mfsk_core::msg::decode_request::DecodeRequest as Fst4Request;
+use mfsk_core::{engine::equalize::EqMode, msg::decode_request::DecodeRequest as Fst4Request};
 use qsonaut_modems::{AudioBlock, DecodeBatch};
 
 use super::{common::*, Fst4Submode, Q65Submode, WsjtDecodeConfig, WsjtMode};
@@ -8,14 +8,25 @@ use crate::AdapterError;
 
 macro_rules! fst4_decode {
     ($audio:expr, $config:expr, $mode:expr, $protocol:ty) => {{
-        let outcome = Fst4Request::<$protocol>::new(
+        let request = Fst4Request::<$protocol>::new(
             $audio,
             $config.frequency_min_hz,
             $config.frequency_max_hz,
             $config.sync_min,
             $config.max_candidates,
-        )
-        .decode();
+        );
+        let request = if $config.local_equalization {
+            request.eq_mode(EqMode::Local)
+        } else {
+            request
+        };
+        let outcome = if let Some(budget_ms) = $config.decode_budget_ms {
+            let deadline = Instant::now() + Duration::from_millis(budget_ms);
+            let budget_check = || Instant::now() < deadline;
+            request.budget(&budget_check).decode()
+        } else {
+            request.decode()
+        };
         outcome
             .results
             .into_iter()
