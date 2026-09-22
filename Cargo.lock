@@ -555,8 +555,8 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "mfsk-core"
-version = "0.11.0"
-source = "git+https://github.com/jl1nie/mfsk-core.git?rev=5cba86d5924d1b8736914b5511350eaf1bff3fbc#5cba86d5924d1b8736914b5511350eaf1bff3fbc"
+version = "0.11.1"
+source = "git+https://github.com/jl1nie/mfsk-core.git?rev=ef3fc8eaa4ec3936b76bbb21e8befd91728cb8e8#ef3fc8eaa4ec3936b76bbb21e8befd91728cb8e8"
 dependencies = [
  "crc",
  "num-complex",
@@ -840,14 +840,14 @@ dependencies = [
 
 [[package]]
 name = "qsonaut-n3fjp"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "qsonaut-third-party"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "cwdit-dsp",
  "cwdit-morse",

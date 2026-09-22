@@ -19,3 +19,9 @@
   preserving contest fields and unknown messages without automatic log edits.
 - Add loopback/fixture validation and explicit transmit authorization/disarm
   integration contracts. No UDP or consumer application changes are included.
+
+## 0.2.1 — 2026-09-21
+
+- Update the immutable `mfsk-core` dependency to upstream `0.11.1`, including
+  `/P` and `/R` portable callsign synthesis and Q65 AP support, FT4's safer
+  default message filtering, and decoder-fidelity maintenance.

@@ -3,14 +3,14 @@ members = ["crates/qsonaut-third-party", "crates/qsonaut-n3fjp"]
 resolver = "2"
 
 [workspace.package]
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 license = "GPL-3.0-or-later"
 authors = ["QSONaut Contributors"]
 
 [workspace.dependencies]
 qsonaut-modems = { git = "https://github.com/nicksbar/qsonaut-modems.git", rev = "3a4f815e7afabe492de60dea72ca00224261c062" }
-mfsk-core = { git = "https://github.com/jl1nie/mfsk-core.git", rev = "5cba86d5924d1b8736914b5511350eaf1bff3fbc", default-features = false, features = ["full"] }
+mfsk-core = { git = "https://github.com/jl1nie/mfsk-core.git", rev = "ef3fc8eaa4ec3936b76bbb21e8befd91728cb8e8", default-features = false, features = ["full"] }
 thiserror = "2"
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 komitoto-sstv = { git = "https://github.com/IRendy/komitoto.git", rev = "c98945f7c89f714b3182457a86b15a0c43cb6de6" }
