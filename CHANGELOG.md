@@ -12,6 +12,13 @@
 
 ## Unreleased
 
+## 0.2.2 — 2026-09-21
+
+- Add generated FT8/FT4 fixture descriptors with shared provenance and
+  normalized expected-result contracts; cover wrong-rate rejection and silence
+  as consumer-neutral adapter behaviors.
+- Update the pinned `qsonaut-modems` contract to `0.1.1`.
+
 - Add independent `qsonaut-n3fjp` crate with the published API 2.2 command
   catalog, bounded framing, opt-in TCP client configuration, version discovery,
   notifications, scored entry submission, and direct ADIF support.

@@ -20,6 +20,14 @@ The adapter crate is distributed under GPL-3.0-or-later because it links to
 `mfsk-core`. Consumers must review the terms for the resulting combined
 binary. This file is not a substitute for the complete upstream license.
 
+## Generated adapter fixtures
+
+- Source: generated deterministically by this repository's adapter tests.
+- License: GPL-3.0-or-later.
+- Used for: consumer-visible WSJT fixture metadata and normalized result
+  validation; no upstream recordings or embedded third-party source are
+  distributed with these fixtures.
+
 ## komitoto-sstv
 
 - Source: https://github.com/IRendy/komitoto
