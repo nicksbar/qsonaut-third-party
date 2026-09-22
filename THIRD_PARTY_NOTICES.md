@@ -6,11 +6,11 @@ implementations. Each dependency retains its own license and attribution.
 ## mfsk-core
 
 - Source: https://github.com/jl1nie/mfsk-core
-- Revision: `5cba86d5924d1b8736914b5511350eaf1bff3fbc`
-- The pinned revision is the upstream `0.11.0` release line, including the
-  post-release Swift binding commit present on upstream `main` at the time of
-  this branch. The Rust adapter uses the Rust library; the Swift package is
-  not linked here.
+- Revision: `ef3fc8eaa4ec3936b76bbb21e8befd91728cb8e8`
+- The pinned revision is upstream `0.11.1`. It adds portable `/P` and `/R`
+  callsign support to `pack77`, improves FT4's default false-decode filtering,
+  and includes upstream decoder-fidelity and cross-platform maintenance. The
+  Rust adapter uses the Rust library; the Swift package is not linked here.
 - License: GPL-3.0-or-later
 - Used for: WSJT-family digital modem decoding and synthesis.
 - Upstream attribution: the project documents its derivation from WSJT-X and
