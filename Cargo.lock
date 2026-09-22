@@ -832,22 +832,22 @@ dependencies = [
 
 [[package]]
 name = "qsonaut-modems"
-version = "0.1.0"
-source = "git+https://github.com/nicksbar/qsonaut-modems.git?rev=3a4f815e7afabe492de60dea72ca00224261c062#3a4f815e7afabe492de60dea72ca00224261c062"
+version = "0.1.1"
+source = "git+https://github.com/nicksbar/qsonaut-modems.git?rev=a0ef913c4684e8aa4711d13bbbe6775baa436db0#a0ef913c4684e8aa4711d13bbbe6775baa436db0"
 dependencies = [
  "thiserror",
 ]
 
 [[package]]
 name = "qsonaut-n3fjp"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "qsonaut-third-party"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "cwdit-dsp",
  "cwdit-morse",
