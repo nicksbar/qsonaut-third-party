@@ -6,19 +6,24 @@ implementations. Each dependency retains its own license and attribution.
 ## mfsk-core
 
 - Source: https://github.com/jl1nie/mfsk-core
-- Revision: `ef3fc8eaa4ec3936b76bbb21e8befd91728cb8e8`
-- The pinned revision is upstream `0.11.1`. It adds portable `/P` and `/R`
-  callsign support to `pack77`, improves FT4's default false-decode filtering,
-  and includes upstream decoder-fidelity and cross-platform maintenance. The
-  Rust adapter uses the Rust library; the Swift package is not linked here.
-- License: GPL-3.0-or-later
+- Revision: `c21458c90bcb853f20181e9e7cac3c2f9b4bad34`
+- The pinned revision has workspace version `0.14.0` plus unreleased public
+  decoder/API corrections. It is 522 commits after the previous
+  `ef3fc8eaa4ec3936b76bbb21e8befd91728cb8e8` pin (0.11.1). The adapter uses
+  the Rust library with `default-features = false, features = ["full"]`;
+  Swift and C bindings are not linked here.
+- License: GPL-3.0-only (upstream corrected its license declaration in #569).
 - Used for: WSJT-family digital modem decoding and synthesis.
 - Upstream attribution: the project documents its derivation from WSJT-X and
   carries the corresponding attribution and license text.
 
-The adapter crate is distributed under GPL-3.0-or-later because it links to
-`mfsk-core`. Consumers must review the terms for the resulting combined
-binary. This file is not a substitute for the complete upstream license.
+The `qsonaut-third-party` modem crate declares GPL-3.0-only to reflect the
+linked library's obligations. Combined binaries containing this dependency
+must comply with GPL version 3, not an unrestricted later-version option.
+Original repository work and the independent `qsonaut-n3fjp` crate retain
+GPL-3.0-or-later; the workspace default and license text are not relicensed.
+Consumers must review all linked dependencies and retain upstream attribution
+and complete license texts. This file is not a substitute for those texts.
 
 ## Generated adapter fixtures
 

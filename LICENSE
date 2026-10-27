@@ -1,4 +1,9 @@
 GPL-3.0-or-later
 
+The above applies to original repository work, including the independent
+qsonaut-n3fjp crate. The qsonaut-third-party modem crate and combined binaries
+linking mfsk-core are subject to GPL-3.0-only; the later-version option does
+not override that dependency's terms.
+
 This repository contains adapters around third-party modem implementations.
 See THIRD_PARTY_NOTICES.md for component-specific licensing and source pins.

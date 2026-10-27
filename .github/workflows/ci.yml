@@ -21,7 +21,10 @@ jobs:
         with:
           toolchain: stable
           components: rustfmt, clippy
+          target: aarch64-linux-android
       - run: cargo fmt --all -- --check
-      - run: cargo metadata --locked --no-deps
+      - run: cargo metadata --format-version 1 --locked --no-deps
       - run: cargo test --workspace --all-targets --locked
       - run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+      # Compile only: does not link an APK or exercise a device/audio route.
+      - run: cargo check --locked -p qsonaut-third-party --target aarch64-linux-android

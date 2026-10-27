@@ -10,7 +10,23 @@
 - Expose the 0.11 caller-owned decode budget and local equalization controls
   for FT8, FT4, and FST4 without leaking `mfsk-core` types.
 
-## Unreleased
+## 0.3.0 — 2026-10-27
+
+- Pin `mfsk-core` to `c21458c90bcb853f20181e9e7cac3c2f9b4bad34`
+  (0.14.0 plus unreleased corrections), migrating private decode requests to
+  the public `decoder` facade and removed synthesis aliases to generic TX.
+- Preserve adapter PCM conversion, FT8/FT4 depth/OSD controls, stateless batch
+  behavior, and frame-only budget/equalizer scope. Reject wrong rates in
+  direct family helpers as well as dispatch.
+- Preserve JT65's hard-decision RS path by disabling the newly introduced
+  randomized Chase trials; cover clean and noisy single-message fixtures.
+- Report adapter search defaults rather than deleted registry defaults,
+  advertise MSK144's existing hint, and add `WsjtSyncScale::SyncFraction` for
+  scan metadata (downstream exhaustive enum matches need this case).
+- Correct linked modem licensing to GPL-3.0-only without relicensing the
+  independent N3FJP crate. Add Android compile CI and deterministic maintenance
+  tests/comparison tooling. See [validation and limitations](docs/UPSTREAM-CATCHUP-2026-10-27.md),
+  including WSPR center-frequency/DT/SNR corrections and scan decode changes.
 
 ## 0.2.2 — 2026-09-21
 

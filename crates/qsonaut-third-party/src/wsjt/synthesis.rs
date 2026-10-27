@@ -1,4 +1,4 @@
-use mfsk_core::{fst4, ft4, ft8, msg::wsjt77::pack77, wspr};
+use mfsk_core::{engine::tx, fst4, ft4, ft8, msg::wsjt77::pack77, wspr};
 
 use super::{Fst4Submode, Q65Submode};
 
@@ -25,14 +25,18 @@ fn pack_standard(compose: &str) -> Option<[u8; 77]> {
 
 pub fn synthesize_ft8_standard(compose: &str, tone_hz: f32, amplitude: i16) -> Option<Vec<i16>> {
     let bits = pack_standard(compose)?;
-    let tones = ft8::wave_gen::message_to_tones(&bits);
-    Some(ft8::wave_gen::tones_to_i16(&tones, tone_hz, amplitude))
+    let tones = tx::message_to_tones::<ft8::Ft8>(&bits);
+    Some(tx::synthesize_i16::<ft8::Ft8>(
+        &tones, 12_000, tone_hz, amplitude,
+    ))
 }
 
 pub fn synthesize_ft4_standard(compose: &str, tone_hz: f32, amplitude: i16) -> Option<Vec<i16>> {
     let bits = pack_standard(compose)?;
-    let tones = ft4::encode::message_to_tones(&bits);
-    Some(ft4::encode::tones_to_i16(&tones, tone_hz, amplitude))
+    let tones = tx::message_to_tones::<ft4::Ft4>(&bits);
+    Some(tx::synthesize_i16::<ft4::Ft4>(
+        &tones, 12_000, tone_hz, amplitude,
+    ))
 }
 
 pub fn synthesize_fst4_standard(
@@ -42,17 +46,23 @@ pub fn synthesize_fst4_standard(
     amplitude: i16,
 ) -> Option<Vec<i16>> {
     let bits = pack_standard(compose)?;
-    let tones = fst4::encode::message_to_tones(&bits);
-    let gfsk = match submode {
-        Fst4Submode::S15 => &fst4::encode::FST4_15_GFSK,
-        Fst4Submode::S30 => &fst4::encode::FST4_30_GFSK,
-        Fst4Submode::S60 => &fst4::encode::FST4_60A_GFSK,
-        Fst4Submode::S120 => &fst4::encode::FST4_120_GFSK,
-        Fst4Submode::S300 => &fst4::encode::FST4_300_GFSK,
-    };
-    Some(fst4::encode::tones_to_i16_with_gfsk(
-        &tones, tone_hz, amplitude, gfsk,
-    ))
+    macro_rules! synthesize {
+        ($protocol:ty) => {
+            tx::synthesize_i16::<$protocol>(
+                &tx::message_to_tones::<$protocol>(&bits),
+                12_000,
+                tone_hz,
+                amplitude,
+            )
+        };
+    }
+    Some(match submode {
+        Fst4Submode::S15 => synthesize!(fst4::Fst4s15),
+        Fst4Submode::S30 => synthesize!(fst4::Fst4s30),
+        Fst4Submode::S60 => synthesize!(fst4::Fst4s60),
+        Fst4Submode::S120 => synthesize!(fst4::Fst4s120),
+        Fst4Submode::S300 => synthesize!(fst4::Fst4s300),
+    })
 }
 
 fn standard_waveform(

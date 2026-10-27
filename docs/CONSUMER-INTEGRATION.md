@@ -63,24 +63,58 @@ telemetry types.
 `E120`, and `A300`. JT65 remains JT65A because the pinned backend does not
 currently provide usable JT65B or JT65C protocol types.
 
-The upstream 0.11 registry describes the FT/JT/Q/FST4 geometry. MSK144 is
+The upstream registry describes the FT/JT/Q/FST4 geometry. MSK144 is
 also returned by `protocol_capabilities()`, but it is represented with
 adapter-owned geometry because its separate burst decoder is not part of that
 registry and has no FFT1 decode stage. Experimental UVPacket entries are not
 returned as WSJT modes.
 
-## 0.11 capabilities intentionally left behind the boundary
+## Public decoder migration and deliberate limits
 
-The upstream `DecodeOutcome` also carries reusable FFT cache data and a
-per-decode budget report, and its frame/Q65 requests support synchronous
-streaming callbacks, known-signal subtraction, AP hints, and (for Q65)
-fading-model selection and callsign-hash resolution. Those are real upstream
-capabilities, but `qsonaut-modems` currently defines a normalized batch/event
-contract rather than a cache, callback, or protocol-specific hint contract.
-The adapter therefore exposes only the safe shared controls now: budget input,
-local equalization, and capability discovery. Promoting the remaining options
-should be a deliberate `qsonaut-modems` contract change, not an upstream type
-leak or a collection of ad hoc fields.
+The maintenance pin uses `decoder::{AnyDecoder, Decoder, SlotInput}` and
+`default_params`, never the now-private request/pipeline modules. Public
+adapter function/config/result names remain unchanged. The added
+`WsjtSyncScale::SyncFraction` case accurately describes scan scores; consumers
+with exhaustive matches must handle it before upgrading.
+
+- A fresh decoder is created per call. No cross-slot averaging, callsign-table
+   accumulation, persistent state, period index, or station/QSO hints are added.
+   AP is explicitly off, including upstream blind CQ hypotheses.
+- FT8 maps `deep_decode=false/true` to Fast/Normal. FT4 retains OSD in both
+   settings and explicitly chooses SinglePass/three SIC rounds. JT65 uses Normal
+   with `Jt65Extras::chase.max_trials = 0`: legacy `decode_scan` used hard-decision
+   RS, not the separate randomized `decode_scan_chase`. Zero trials keeps the
+   unconditional zero-erasure RS attempt without enabling new Chase hypotheses
+   or changing acceptance gates. The public facade still requires two passes,
+   so it cannot reproduce the legacy single-pass scan exactly. At 900–1200 Hz,
+   8 candidates, and the unchanged .1 score/±2 s window, clean and deterministic
+   low-noise 1000 Hz CQ fixtures return only the expected message (the old pin
+   returned four copies). Candidate limits remain caller-owned: 120 candidates
+   still produce spurious hard-RS decodes on this fixture, also present in the
+   old wide-candidate scan; this correction is not a general false-decode cure.
+   Other families use upstream defaults and ignore this adapter flag.
+- FT8/FT4/FST4 use the original clamp/round i16 conversion, bypassing upstream
+   float RMS normalization. Scan engines continue receiving original f32 audio.
+- Budget/equalizer capability flags remain frame-only. Budgets are cooperative,
+   not hard deadlines; a caller must still own cancellation and slot policy.
+   Frequency hints are wired only for FT4 and MSK144. WSPR ignores requested
+   band bounds; this adapter does not pretend otherwise by filtering results.
+- Capability geometry still comes from the registry; search defaults now mean
+   adapter requests (100–3000 Hz, 120 candidates, .6 frame sync/.1 scan score),
+   not deleted upstream registry/GUI defaults. MSK144 keeps zero sentinels;
+   no sniper entry point is exposed and sniper defaults are `None`.
+- Native corrected SNR, protocol-relative DT, and audio frequency are returned
+   directly. WSPR now reports center frequency rather than tone zero. Q65 DT
+   no longer reports buffer-relative start. These are intentional observable
+   corrections, not RF-frequency calculations. See the [numeric report](UPSTREAM-CATCHUP-2026-10-27.md).
+
+The adapter still exposes 21 modes, not new upstream FST4-900/1800, FST4W,
+UVPacket, or every upstream option. `SlotResult` native details, candidate and
+budget reports, streaming callbacks, known-signal subtraction, AP/hints,
+averaging, and protocol-specific search controls remain behind the boundary.
+Promoting them requires a deliberate first-party contract change, not leaking
+upstream types. No hardware TX, automatic QSO sequencing, logging, or scheduling
+is introduced.
 
 ## Audio boundary clarification
 

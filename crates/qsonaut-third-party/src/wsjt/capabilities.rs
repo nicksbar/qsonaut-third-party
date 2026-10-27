@@ -1,6 +1,6 @@
 //! Consumer-neutral WSJT protocol discovery.
 //!
-//! `mfsk-core` 0.11 publishes a detailed protocol registry. This module
+//! `mfsk-core` publishes a detailed protocol registry. This module
 //! copies the stable geometry and the capabilities actually exposed by this
 //! adapter without leaking upstream types into QSONaut's public contract.
 
@@ -13,9 +13,14 @@ use super::{Fst4Submode, Q65Submode, WsjtMode};
 pub enum WsjtSyncScale {
     CostasAbsolute,
     BaselineNormalised,
+    /// Scan-family score in 0..=1; not comparable with FT/FST4 sync_min.
+    SyncFraction,
 }
 
-/// Default search values published by the upstream protocol registry.
+/// Adapter default search values, not upstream GUI/depth defaults.
+/// Scan families report score_threshold in sync_min; MSK144 uses zero
+/// sentinels because it takes a carrier hint and fixed +/-200 Hz tolerance.
+/// WSPR ignores the requested frequency bounds in its native scan.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct WsjtSearchDefaults {
     pub frequency_min_hz: f32,
@@ -88,7 +93,7 @@ fn capabilities(mode: WsjtMode) -> WsjtCapabilities {
         deep_decode: matches!(mode, WsjtMode::Ft8 | WsjtMode::Ft4),
         local_equalization: frame_decode,
         decode_budget: frame_decode,
-        frequency_hint: matches!(mode, WsjtMode::Ft4),
+        frequency_hint: matches!(mode, WsjtMode::Ft4 | WsjtMode::Msk144),
         ft8_slot_acquisition: matches!(mode, WsjtMode::Ft8),
     }
 }
@@ -97,6 +102,8 @@ fn sync_scale(scale: mfsk_core::registry::SyncScale) -> WsjtSyncScale {
     match scale {
         mfsk_core::registry::SyncScale::CostasAbsolute => WsjtSyncScale::CostasAbsolute,
         mfsk_core::registry::SyncScale::BaselineNormalised => WsjtSyncScale::BaselineNormalised,
+        mfsk_core::registry::SyncScale::SyncFraction => WsjtSyncScale::SyncFraction,
+        _ => unreachable!("unknown sync scale in pinned upstream registry"),
     }
 }
 
@@ -130,12 +137,16 @@ fn info(mode: WsjtMode) -> Option<WsjtProtocolInfo> {
         upstream_name: meta.name,
         capabilities: capabilities(mode),
         defaults: WsjtSearchDefaults {
-            frequency_min_hz: meta.profile.defaults.freq_min_hz,
-            frequency_max_hz: meta.profile.defaults.freq_max_hz,
-            sync_min: meta.profile.defaults.sync_min,
-            max_candidates: meta.profile.defaults.max_cand,
+            frequency_min_hz: super::WsjtDecodeConfig::default().frequency_min_hz,
+            frequency_max_hz: super::WsjtDecodeConfig::default().frequency_max_hz,
+            sync_min: if matches!(mode, WsjtMode::Ft8 | WsjtMode::Ft4 | WsjtMode::Fst4(_)) {
+                super::WsjtDecodeConfig::default().sync_min
+            } else {
+                super::WsjtDecodeConfig::default().score_threshold
+            },
+            max_candidates: super::WsjtDecodeConfig::default().max_candidates as u32,
             sync_scale: sync_scale(meta.profile.sync_scale),
-            sniper_max_candidates: meta.profile.sniper_max_cand_cap,
+            sniper_max_candidates: None, // no sniper entry point in this adapter
         },
         slot: mode.slot(),
         tones: meta.ntones,
@@ -204,5 +215,40 @@ mod tests {
         assert!(!msk144.capabilities.synthesize);
         assert!(!msk144.capabilities.decode_budget);
         assert_eq!(msk144.decode_fft1_size, None);
+    }
+
+    #[test]
+    fn capability_defaults_describe_wired_adapter_controls() {
+        let config = super::super::WsjtDecodeConfig::default();
+        for entry in protocol_capabilities() {
+            assert!(entry.defaults.sniper_max_candidates.is_none());
+            let frame = matches!(
+                entry.mode,
+                WsjtMode::Ft8 | WsjtMode::Ft4 | WsjtMode::Fst4(_)
+            );
+            assert_eq!(entry.capabilities.decode_budget, frame);
+            assert_eq!(entry.capabilities.local_equalization, frame);
+            assert_eq!(
+                entry.capabilities.frequency_hint,
+                matches!(entry.mode, WsjtMode::Ft4 | WsjtMode::Msk144)
+            );
+            if entry.mode == WsjtMode::Msk144 {
+                continue;
+            }
+            assert_eq!(entry.defaults.frequency_min_hz, config.frequency_min_hz);
+            assert_eq!(entry.defaults.frequency_max_hz, config.frequency_max_hz);
+            assert_eq!(entry.defaults.max_candidates, config.max_candidates as u32);
+            assert_eq!(
+                entry.defaults.sync_min,
+                if frame {
+                    config.sync_min
+                } else {
+                    config.score_threshold
+                }
+            );
+            if !frame {
+                assert_eq!(entry.defaults.sync_scale, WsjtSyncScale::SyncFraction);
+            }
+        }
     }
 }

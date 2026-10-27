@@ -147,6 +147,7 @@ impl WsjtMode {
 /// Shared configuration for the protocol adapters.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct WsjtDecodeConfig {
+    /// Requested audio search band; WSPR's native scan ignores these bounds.
     pub frequency_min_hz: f32,
     pub frequency_max_hz: f32,
     pub sync_min: f32,
@@ -158,11 +159,16 @@ pub struct WsjtDecodeConfig {
     /// sync score. `sync_min` remains the FT/FST4 threshold.
     pub score_threshold: f32,
     pub max_candidates: usize,
+    /// FT8: Fast/Normal. FT4: one/three OSD-enabled passes.
+    /// Other families ignore this flag; JT65 uses hard-decision RS at fixed
+    /// Normal depth (two upstream passes, no randomized Chase trials).
     pub deep_decode: bool,
+    /// Used only by FT4 and MSK144. Not an RF carrier frequency.
     pub frequency_hint_hz: Option<f32>,
     /// Stop FT8, FT4, or FST4 candidate work after this wall-clock budget.
-    /// Other protocol families retain their upstream search behavior because
-    /// their 0.11 APIs do not accept the same budget predicate.
+    /// Other families intentionally retain the adapter's historical unbudgeted
+    /// behavior even though the new upstream facade supports wider budgeting.
+    /// Cooperative candidate checks are not a hard real-time deadline.
     pub decode_budget_ms: Option<u64>,
     /// Apply `mfsk-core`'s local Costas-pilot equalizer to frame-decodable
     /// modes. This is useful for audio from a tilted analogue filter and is
